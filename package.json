@@ -1,0 +1,30 @@
+{
+  "name": "AdvancedComputerLab",
+  "version": "1.0.0",
+  "description": "CSEN704 Advanced Computer Lab project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mohamedFabdrabo/AdvancedComputerLab.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mohamedFabdrabo/AdvancedComputerLab/issues"
+  },
+  "homepage": "https://github.com/mohamedFabdrabo/AdvancedComputerLab#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.17.1",
+    "i": "^0.3.6",
+    "jsonwebtoken": "^8.5.1",
+    "moment": "^2.29.1",
+    "mongoose": "^5.11.8",
+    "nodemon": "^2.0.6",
+    "supertest": "^6.0.1"
+  }
+}
