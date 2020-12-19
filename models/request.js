@@ -8,7 +8,7 @@ const RE=mongoose.Schema({
     id:{type:String,required:true,unique:true},
 
     sender:{type:String,required:true},
-    reciever:{type:[String],required:true},///?????????
+    receiver:{type:[String],required:true},///?????????
     state:{enum : ['Pending','Accepted','Rejected','Cancelled']},
     reason:String,
     type:{enum : ['Compensation','Replacement','Leave','Slot-linking','']}
