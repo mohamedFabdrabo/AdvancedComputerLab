@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const month = mongoose.Schema({
+/*const month = mongoose.Schema({
     year: Number,
     monthNumber :{type: Number},
     totalHours : {type :Number},
@@ -11,7 +11,10 @@ const daySchema = mongoose.Schema({
     name : {type:String},
     SignInOut :[signSchema]
 });
-
+*/
+const attendanceSchema = mongoose.Schema({
+    records:[signSchema]
+});
 const signSchema = mongoose.Schema({
     time : {type : Date},
     signIn : {type : Boolean}
