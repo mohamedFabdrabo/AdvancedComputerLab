@@ -6,16 +6,11 @@ const acmem= require('./AcademicMemberModel.js').schema;//academic member
 const RE=mongoose.Schema({
     id:{type:String,required:true,unique:true},
 
-    sender:{type:String,required:true},
-    receiver:{type:[String],required:true},///?????????
+    sender:{type:acmem,required:true},
+    receiver:{type:[acmem],required:true},///?????????
     state:{enum : ['Pending','Accepted','Rejected','Cancelled']},
     reason:String,
-    type:{enum : ['Compensation','Replacement','Leave','Slot-linking','']}
-
-
-
-
-
+    type:{enum : ['Compensation','Replacement','Leave','Slot-linking']}
     
 });
 
