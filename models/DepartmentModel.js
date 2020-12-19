@@ -1,7 +1,7 @@
 const mongoose=require('mongoose');
-const crs = require('./course.js');//courses
-const dep = require('./DepartmentModel.js');
-const memo =require('./AcademicMemberModel.js');
+const crs = require('./course').schema;//courses
+const dep = require('./DepartmentModel.js').schema;
+const memo =require('./AcademicMemberModel.js').schema;
 const DM=mongoose.Schema({
     name:{type:String,required:true,unique:true},
     HOD:{type:memo},
@@ -10,4 +10,4 @@ const DM=mongoose.Schema({
 
 });
 
-module.exports=mongoose.model("DM","DM");
+module.exports=mongoose.model("DM",DM);

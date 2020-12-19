@@ -1,7 +1,7 @@
 const mongoose=require('mongoose');
-const locationModel = require('./location.js');
-const acmem= require('./AcademicMemberModel.js');//academic member
-const sl= require('./slot.js');//academic member
+//const locationModel = require('./location.js').schema;
+const acmem= require('./AcademicMemberModel.js').schema;//academic member
+const sl= require('./slot.js').schema;//academic member
 
 
 const CO=mongoose.Schema({

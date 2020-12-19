@@ -1,10 +1,7 @@
 const mongoose=require('mongoose');
-const locationModel = require('./location.js');
-const crs = require('./course.js');//courses
-const dep = require('./DepartmentModel.js');
-const fac = require('./facultyModel.js');
-const att = require('./AttendanceRecords.js');
-
+const locationModel = require('./location.js').schema;
+const attendanceSchema = require('./AttendanceRecords.js').schema;
+const slot = require('./slot.js').schema;
 const AM=mongoose.Schema({
     name: String,
     gender:String,
@@ -13,15 +10,17 @@ const AM=mongoose.Schema({
     salary:Number,
     password:{type:String,required:true,minlength:5},
     officeLocation:locationModel,
-    attendanceRecord:[att],    
+    attendanceRecord:attendanceSchema,    
     role: String,
     leaveBalance: Number,  
     dayoff:String,
-    courses:[crs],
-    faculty:fac,
-    department:dep,
+    courses:[String],
+    faculty:{type:String},
+    department:{type:String},
     schedule:[slot],
-    leaves:[{ day:Date,type: {enum : ['Accidental','Maternity','Annual','Compensation','Sick']}}]
+    leaves:[{ day:Date,
+        LeaveType:{enum : ['Accidental','Maternity','Annual','Compensation','Sick']}
+            }]
 
  
 });
