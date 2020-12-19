@@ -3,6 +3,7 @@ const locationModel = require('./location.js');
 const crs = require('./course.js');//courses
 const dep = require('./DepartmentModel.js');
 const fac = require('./facultyModel.js');
+const att = require('./AttendanceRecords.js');
 
 const AM=mongoose.Schema({
     name: String,
@@ -12,7 +13,7 @@ const AM=mongoose.Schema({
     salary:Number,
     password:{type:String,required:true,minlength:5},
     officeLocation:locationModel,
-    attendanceRecord:[String],  //??????????  
+    attendanceRecord:[att],  //??????????  
     role: String,
     leaves:[String],  //??????????  
     dayoff:String,
