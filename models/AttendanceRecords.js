@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 const month = mongoose.Schema({
+    year: Number,
     monthNumber :{type: Number},
     totalHours : {type :Number},
     days :[daySchema]
 });
-
+                                              //adding year maybe
 const daySchema = mongoose.Schema({
     dayNumber : {type:Number},
     name : {type:String},

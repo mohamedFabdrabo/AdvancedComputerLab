@@ -1,10 +1,10 @@
 const mongoose=require('mongoose');
 const crs = require('./course.js');//courses
 const dep = require('./DepartmentModel.js');
-const memo=require('./AcademicMemberModel.js');
+const memo =require('./AcademicMemberModel.js');
 const DM=mongoose.Schema({
     name:{type:String,required:true,unique:true},
-    HOD:{type:String},
+    HOD:{type:memo},
     courses:[crs],
     academicmem:[memo]
 

@@ -13,14 +13,16 @@ const AM=mongoose.Schema({
     salary:Number,
     password:{type:String,required:true,minlength:5},
     officeLocation:locationModel,
-    attendanceRecord:[att],  //??????????  
+    attendanceRecord:[att],    
     role: String,
-    leaves:[String],  //??????????  
+    leaveBalance: Number,  
     dayoff:String,
     courses:[crs],
     faculty:fac,
     department:dep,
-    schedule:[slot]
+    schedule:[slot],
+    leaves:[{ day:Date,type: {enum : ['Accidental','Maternity','Annual','Compensation','Sick']}}]
+
  
 });
 

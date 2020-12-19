@@ -5,19 +5,17 @@ const sl= require('./slot.js');//academic member
 
 
 const CO=mongoose.Schema({
+    name: String,
+    id:{type:String,required:true,unique:true},
+
     instructors:{type:[acmem]},
     coordinator:{type:acmem},
-
     academicMembers:[acmem],
-    id:{type:String,required:true,unique:true},
-    name: String,
-    salary:Number,
 
-    password:{type:String,required:true,minlength:5},
-    officeLocation:locationModel,
-    attendanceRecord:{String},
-    coverage:Number,
-    slots:[sl]
+    slots:[sl],
+
+    coverage:Number
+
     
 });
 

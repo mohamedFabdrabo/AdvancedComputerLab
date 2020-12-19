@@ -3,11 +3,12 @@ const locationModel = require('./location.js');
 const acmem= require('./AcademicMemberModel.js');//academic member
 
 const slot=mongoose.Schema({
-    name: String,
+    //name: String,
+    id: String,
     day:String,
-    slots: {enum : ['First','Second','Third','Fourth','Fifth']} ,
+    timing: {enum : ['First','Second','Third','Fourth','Fifth']} ,
     type: {enum : ['Lab','Tutorial']} ,
-//timing ???
+   //timing by hour ???
     location:locationModel,
 
 
