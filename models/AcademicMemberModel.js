@@ -5,8 +5,8 @@ const slot = require('./slot.js').schema;
 const AM=mongoose.Schema({
     name: String,
     gender:String,
-    email:{type:String,required:true,unique:true},
-    id:{type:String,required:true,unique:true},
+    email:{type:String,required:true,unique:true,sparse:true},
+    id:{type:String,required:true,unique:true,sparse:true},
     salary:Number,
     password:{type:String,required:true,minlength:5},
     officeLocation:locationModel,
@@ -20,7 +20,6 @@ const AM=mongoose.Schema({
     schedule:[slot],
     leaves:[{ day:Date,
         LeaveType:{enum : ['Accidental','Maternity','Annual','Compensation','Sick']}}]
-
  
 });
 

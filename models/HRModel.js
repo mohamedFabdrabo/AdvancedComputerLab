@@ -2,9 +2,9 @@ const mongoose=require('mongoose');
 const locationModel = require('./location.js').schema;
 const HR=mongoose.Schema({
     name: String,
-    email:{type:String,required:true,unique:true},
+    email:{type:String,required:true,unique:true,sparse:true},
 
-    id:{type:String,required:true,unique:true},
+    id:{type:String,required:true,unique:true,sparse:true},
     
     salary:Number,
     leaveBalance: Number,

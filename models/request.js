@@ -4,7 +4,7 @@ const acmem= require('./AcademicMemberModel.js').schema;//academic member
 //const sl= require('./slot.js').schema;//academic member
 
 const RE=mongoose.Schema({
-    id:{type:String,required:true,unique:true},
+    id:{type:String,required:true,unique:true,sparse:true},
 
     sender:{type:acmem,required:true},
     receiver:{type:[acmem],required:true},///?????????
