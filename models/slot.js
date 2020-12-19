@@ -12,4 +12,4 @@ const slot=mongoose.Schema({
 
 
 });
-module.exports=mongoose.model("SL",SL);
+module.exports=mongoose.model("slot",slot);
