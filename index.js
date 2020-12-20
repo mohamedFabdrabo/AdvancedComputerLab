@@ -18,5 +18,11 @@ mongoose.connect(url,connectionParams).then(()=>{
 });
 
 //app.listen(3000)
-
-  
+/*
+const x= require('./models/AcademicMemberModel.js');//academic member
+const newMember= new x({
+    email:"test@email.com",
+    password:"mypass",
+    id: "ac-5"
+}).save();
+//const MemberSaved =  newMember.save();*/

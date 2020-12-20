@@ -3,7 +3,7 @@ const bcrypt=require('bcryptjs');
 const jwt=require('jsonwebtoken');
 const jwtBlacklist = require('jwt-blacklist')(jwt);
 const AcademicMembers = require('../models/AcademicMemberModel');
-//const AttendanceRecords = require('./models/AttendanceRecords');
+const AttendanceRecords = require('../models/AttendanceRecords');
 const Departments = require('../models/DepartmentModel');
 const HRmembers = require('../models/HRModel');
 const courses = require('../models/course');
@@ -52,11 +52,12 @@ router.route('/login').post(async(req,res)=>{
         }
         const matched=await bcrypt.compare(password,alreadyExist.password)
         if(!matched){
+           
             return res.status(400).json({msg:"wrong password"});
         }
         const jwt_pass="sign";
 
-        const token=jwtBlacklist.sign({id:alreadyExist._id,staffID:alreadyExist.id},jwt_pass);
+        const token=jwt/Blacklis.sign({id:alreadyExist._id,staffID:alreadyExist.id},jwt_pass);
         res.json({
                 token,user:{
                 id:alreadyExist._id,
