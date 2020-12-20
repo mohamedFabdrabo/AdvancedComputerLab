@@ -1,7 +1,6 @@
 const express = require('express');
 const bcrypt=require('bcryptjs');
 const jwt=require('jsonwebtoken');
-const jwtBlacklist = require('jwt-blacklist')(jwt);
 const AcademicMembers = require('../models/AcademicMemberModel');
 //const AttendanceRecords = require('./models/AttendanceRecords');
 const Departments = require('../models/DepartmentModel');
@@ -21,9 +20,9 @@ const auth=(req,res,next)=>{
         }
         
         const jwt_pass="sign";
-        const verified=jwtBlacklist.verify(token,jwt_pass);
+        const verified=jwt.verify(token,jwt_pass);
         if(!verified){
-            return res.status(401).json({msg:"byo byo not verified"});
+            return res.status(401).json({msg:"byo byo not verified, You need a valid token"});
         }
 
         // console.log(verified);
@@ -56,7 +55,7 @@ router.route('/login').post(async(req,res)=>{
         }
         const jwt_pass="sign";
 
-        const token=jwtBlacklist.sign({id:alreadyExist._id,staffID:alreadyExist.id},jwt_pass);
+        const token=jwt.sign({id:alreadyExist._id,staffID:alreadyExist.id},jwt_pass);
         res.json({
                 token,user:{
                 id:alreadyExist._id,
@@ -104,7 +103,7 @@ router.route('/register').post(async(req,res)=>{
 router.route('/logout').post(auth,async(req,res)=>{
     try {
         const token = req.header('auth-token'); 
-        jwtBlacklist.blacklist(token);
+        jwt.destroy(token);
 
         res.send("logged out successfully");
     } catch (error) {
