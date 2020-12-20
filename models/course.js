@@ -7,7 +7,6 @@ const sl= require('./slot.js').schema;//academic member
 const CO=mongoose.Schema({
     name: String,
     id:{type:String,required:true,unique:true,sparse:true},
-
     instructors:{type:[acmem]},
     coordinator:{type:acmem},
     academicMembers:[acmem],
