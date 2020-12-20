@@ -9,7 +9,7 @@ const AM=mongoose.Schema({
     id:{type:String,required:true,unique:true,sparse:true},
     salary:Number,
     password:{type:String,required:true,minlength:5},
-    officeLocation:locationModel,
+   officeLocation:locationModel,
     attendanceRecord:attendanceSchema,    
     role: String,
     leaveBalance: Number,  
@@ -20,6 +20,7 @@ const AM=mongoose.Schema({
     schedule:[slot],
     leaves:[{ day:Date,
         LeaveType:{enum : ['Accidental','Maternity','Annual','Compensation','Sick']}}]
+
  
 });
 
