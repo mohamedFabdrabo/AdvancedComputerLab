@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt=require('bcryptjs');
 const jwt=require('jsonwebtoken');
-const jwtBlacklist = require('jwt-blacklist')(jwt);
+const jwtBlacklist = require('jwt-blacklist')//(jwt);
 const AcademicMembers = require('../models/AcademicMemberModel');
 const AttendanceRecords = require('../models/AttendanceRecords');
 const Departments = require('../models/DepartmentModel');
@@ -50,14 +50,14 @@ router.route('/login').post(async(req,res)=>{
             return res.status(400).json({msg:"register first"});
             }
         }
-        const matched=await bcrypt.compare(password,alreadyExist.password)
-        if(!matched){
-           
+        //const matched=await bcrypt.compare(password,alreadyExist.password)
+        //if(!matched){
+           if(password!= alreadyExist.password){
             return res.status(400).json({msg:"wrong password"});
         }
         const jwt_pass="sign";
 
-        const token=jwt/Blacklis.sign({id:alreadyExist._id,staffID:alreadyExist.id},jwt_pass);
+        const token=jwt/Blacklist.sign({id:alreadyExist._id,staffID:alreadyExist.id},jwt_pass);
         res.json({
                 token,user:{
                 id:alreadyExist._id,
@@ -113,7 +113,7 @@ router.route('/logout').post(auth,async(req,res)=>{
     }
 });
 
-router.route('/viewProfile').post(auth,async(req,res)=>{
+router.route('/viewProfile').get(auth,async(req,res)=>{
     try {
         const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
