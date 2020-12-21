@@ -3,7 +3,7 @@ const locationSchema = require('./location.js').schema;
 //const acmem= require('./AcademicMemberModel.js').schema;//academic member
 
 const slot=mongoose.Schema({
-    //name: String,
+    course: String,
     id: String,
     day:String,
     timing: {enum : ['First','Second','Third','Fourth','Fifth']} ,

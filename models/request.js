@@ -10,7 +10,7 @@ const RE=mongoose.Schema({
     receiver:{type:[acmem],required:true},///?????????
     state:{enum : ['Pending','Accepted','Rejected','Cancelled']},
     reason:String,
-    type:{enum : ['Compensation','Replacement','Leave','Slot-linking']}
+    type:{enum : ['Compensation','Replacement','Leave','Slot-linking','dayOffChange']}
     
 });
 

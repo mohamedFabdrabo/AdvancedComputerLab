@@ -116,9 +116,7 @@ router.route('/viewProfile').get(auth,async(req,res)=>{
     try {
         const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
-        console.log(token_id);
-        console.log(token_id.substring(0,2));
-        console.log(token_id.substring(0,2).localeCompare("hr"));
+       
         let ouput;
         if(token_id.substring(0,2).localeCompare("hr") == 0)
             {output = await HRmembers.find({id:token_id});}
