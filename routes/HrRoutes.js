@@ -259,7 +259,6 @@ router.route('/addDepart').post(auth,async(req,res)=>{
      //const update = {"name":newname,"departments":[department]};
      
         let cc=await facultyModel.findOne(filter);
-       console.log("fuck mme")
   //console.log(loc);
    //console.log(cc.departments) ;
    x=cc.departments;
@@ -267,8 +266,8 @@ router.route('/addDepart').post(auth,async(req,res)=>{
         console.log(x);
    //   console.log(loc);
         let oldval={"departments":x}   
-     const kosom7yaty=  await  facultyModel.updateOne(filter,oldval);
-     res.json(kosom7yaty);
+     const res=  await  facultyModel.updateOne(filter,oldval);
+     res.json(res);
      
     }     
      catch (error) {
