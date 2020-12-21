@@ -68,7 +68,7 @@ router.route('/login').post(async(req,res)=>{
         res.status(500).json({error:error.message})
     }
 });
-/*
+
 router.route('/register').post(async(req,res)=>{
     try {
         
@@ -89,7 +89,7 @@ router.route('/register').post(async(req,res)=>{
             email:email,
             password:passwordHashed,
             name:displayName,
-            id:"hr-3"
+            id:"ac-1"
         });
         const savedUser=await newMember.save();
         
@@ -98,7 +98,7 @@ router.route('/register').post(async(req,res)=>{
     } catch (error) {
             res.status(500).json({error:error.message})
     }
-})*/
+})
 
 router.route('/logout').post(auth,async(req,res)=>{
     try {
