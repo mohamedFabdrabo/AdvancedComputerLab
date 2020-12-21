@@ -11,7 +11,6 @@ const CO=mongoose.Schema({
     instructors:{type:[acmem]},
     coordinator:{type:acmem},
     academicMembers:[acmem],
-
     slots:[sl],
 
     coverage:Number
