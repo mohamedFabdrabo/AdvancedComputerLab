@@ -10,6 +10,7 @@ router.route('/addLocation').post(async(req,res)=>{
     try {
           const loc = new locations(
               {name:req.body.name,
+               
                 capacity:req.body.capacity,
                 type:req.body.type,
                 occupation:req.body.occupation  
