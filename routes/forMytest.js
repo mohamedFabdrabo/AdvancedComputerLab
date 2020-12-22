@@ -51,15 +51,19 @@ router.route('/viewLocations').get(async(req,res)=>{
         res.status(500).json({error:error.message})
     }
 });
+
+
+
 router.route('/addFaculty').post(async(req,res)=>{
     try {
-          const fac = new faculties({
-            
-   
-    "name": "civil"
-    
-        })
-       const savedFaculty= await fac.save();
+        //const dep = new Departments({ "name": "bio2" })
+        //const fac = new faculties({  "name": "pharmacy1" }).save();
+
+  const fac=  await faculties.findOne({name:"pharmacy1"});
+ //fac.departments=dep;
+ console.log(fac.departments);
+       const savedFaculty= await Departments.findOne({ _id:fac.departments});
+
         res.json(savedFaculty);
         }
         
@@ -69,19 +73,22 @@ router.route('/addFaculty').post(async(req,res)=>{
 });
 router.route('/addDepartment').post(async(req,res)=>{
     try {
-          const fac = new Departments({
+          const dep = new Departments({
             
    
-    "name": "general4"
+    "name": "bio"
     
         })
-       const myfac= await faculties.findOne({"name":"civil"});
-       const dep =myfac.departments;
-      // dep.push(fac);
-       console.log(myfac);
+       const myfac= await faculties.findOne({"name":"pharmacy"});
+       const deps =myfac.departments;
+       //deps.push(dep);
+       
+       //deps.forEach((element,index,arr) => { });
 
-       const savedFaculty= await myfac.save();
-        res.json(savedFaculty);
+     // const savedFaculty= await faculties.updateOne({name:"pharmacy"},{ $set: { departments:dep } } );
+     // const saved= (await faculties.findOneAndDelete({name:"pharmacy"} )).save();
+     //console.log(savedFaculty);
+        res.json(myfac);
         }
         
      catch (error) {

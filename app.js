@@ -2,7 +2,7 @@ const express=require('express');
 const mongoose=require('mongoose');
 
 const AllStaffRoutes = require('./routes/StaffMembersRoutes');
-const HrRoutes = require('./routes/hrRoutes');
+const HrRoutes = require('./routes/forMytest');
 const HODRoutes = require('./routes/HODRoutes');
 const app=express();
 app.use(express.json());
