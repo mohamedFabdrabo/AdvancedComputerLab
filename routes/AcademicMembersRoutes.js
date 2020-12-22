@@ -38,7 +38,7 @@ const auth=(req,res,next)=>{
     }
 }
 
-router.route('/viewSchedule').post(auth,async(req,res)=>{
+router.route('/viewSchedule').get(auth,async(req,res)=>{
     try {
         const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
