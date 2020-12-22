@@ -1,15 +1,14 @@
 const mongoose=require('mongoose');
-const locationSchema = require('./location.js').schema;
+const Schema   = mongoose.Schema ;
 //const acmem= require('./AcademicMemberModel.js').schema;//academic member
 
 const slot=mongoose.Schema({
+    course: {type:Schema.Types.ObjectId ,ref:"CO"},
+    id: String,
     day:String,
     timing: {enum : ['First','Second','Third','Fourth','Fifth']} ,
     type: {enum : ['Lab','Tutorial']} ,
-   //timing by hour ???
+    location:{type:Schema.Types.ObjectId ,ref:"location"},
     course:String,
-    location:locationSchema,
-
-
 });
 module.exports=mongoose.model("slot",slot);
