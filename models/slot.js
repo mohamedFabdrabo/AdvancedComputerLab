@@ -8,9 +8,7 @@ const slot=mongoose.Schema({
     day:String,
     timing: {enum : ['First','Second','Third','Fourth','Fifth']} ,
     type: {enum : ['Lab','Tutorial']} ,
-   //timing by hour ???
     location:{type:Schema.Types.ObjectId ,ref:"location"},
-
-
+    course:String,
 });
 module.exports=mongoose.model("slot",slot);
