@@ -43,3 +43,28 @@ const auth=(req,res,next)=>{
     }
 }
 module.exports = router;
+    
+
+router.route('/viewSlotLinking').get(auth,async(req,res)=>{
+    try {
+        const token = req.header('auth-token'); 
+        const token_id = jwt.verify(token,"sign").staffID;
+        member = await AcademicMembers.find({id:token_id});
+        Slot_Linking_Requests = await requests.find({type:'Slot-linking',receiver:member});
+        res.send(Slot_Linking_Requests);
+    } catch (error) {
+        res.status(500).json({error:error.message})
+    }
+});
+
+router.route('/viewSlotLinking').get(auth,async(req,res)=>{
+    try {
+        const token = req.header('auth-token'); 
+        const token_id = jwt.verify(token,"sign").staffID;
+        member = await AcademicMembers.find({id:token_id});
+        
+        
+    } catch (error) {
+        res.status(500).json({error:error.message})
+    }
+});
