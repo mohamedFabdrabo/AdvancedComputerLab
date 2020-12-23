@@ -156,7 +156,7 @@ router.route('/addFaculty').post(auth,async(req,res)=>{
         let{nam,department}=req.body;  
         const loc = new faculties(
               {name:nam,
-              Departments:department
+                departments:department
         })
         res.json(department);
        const savedFaculty= await loc.save();
