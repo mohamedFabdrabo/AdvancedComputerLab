@@ -14,6 +14,8 @@ const app = require('../app');
 const { route } = require('../app');
 const facultyModel = require('../models/facultyModel');
 const DepartmentModel = require('../models/DepartmentModel');
+const { update } = require('../models/course');
+const { mquery } = require('mongoose');
 
 const router = express.Router();
 
@@ -312,11 +314,21 @@ router.route('/delDepart').delete(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-        let{nam}=req.body;  
+        let{nam}=req.body;
         const filter = {"name":nam};
+         
+        const result=await (await DepartmentModel.findOne(filter))._id;
+        console.log(result);
+        const filter1 = {departments:{$in:[result]}};
+        
+        const remove = {$pull :{departments:{$in:result}}};
+      const rep=await facultyModel.updateMany(filter1,remove);
         console.log("surtur");
-        const result=await DepartmentModel.findOneAndDelete(filter);
-        res.send(result);
+      
+
+        console.log()
+    
+        res.send(rep);
     }     
      catch (error) {
         res.status(500).json({error:error.message})
