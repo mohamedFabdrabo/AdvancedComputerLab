@@ -13,6 +13,7 @@ const slots = require('../models/slot');
 const app = require('../app');
 const { route } = require('../app');
 const facultyModel = require('../models/facultyModel');
+const DepartmentModel = require('../models/DepartmentModel');
 
 const router = express.Router();
 
@@ -158,8 +159,8 @@ router.route('/addFaculty').post(auth,async(req,res)=>{
               {name:nam,
                 departments:department
         })
-        res.json(department);
-       const savedFaculty= await loc.save();
+        
+       const savedFaculty=  await loc.save();
         res.json(savedFaculty);
         }     
      catch (error) {
@@ -180,14 +181,12 @@ router.route('/updateFaculty').get(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-        let {nam,newname,department}=req.body;
-      console.log(department[0].courses);
+        let {nam,newname}=req.body;
         const filter = {"name":nam};
         
-         const update = {"name":newname,"departments":[department]};
+         const update = {"name":newname};
        console.log("be kind plz")
         let result1=await faculties.findOne(filter,{new: true});
-            console.log(result1)
    
         if(result1==null){
         return res.status(400).json({msg:"This location doesn't exist"});       
@@ -195,8 +194,6 @@ router.route('/updateFaculty').get(auth,async(req,res)=>{
        
           let result=await faculties.findOneAndUpdate(filter,update,{new: true});
           res.send(result);
-          console.log(result);
-          console.log("fuck you as well")
         }
 
      catch (error) {
@@ -207,7 +204,6 @@ router.route('/updateFaculty').get(auth,async(req,res)=>{
 
 router.route('/delFaculty').delete(auth,async(req,res)=>{
     try {
-       console.log("are you gay")
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
          let {nam}=req.body;
@@ -223,7 +219,6 @@ router.route('/delFaculty').delete(auth,async(req,res)=>{
             return res.status(403).json({msg:"plz enter types correclty "});   
            }
         const deleted=await faculties.findOneAndDelete({"name": nam});
-        console.log("are you idiot")
        res.json(deleted);
     }
      catch (error) {
@@ -247,28 +242,57 @@ router.route('/addDepart').post(auth,async(req,res)=>{
         return res.status(400).json({msg:"You cannot do that you are not HR"});
       
       
-        let{facname,nam,hod,cr,acd}=req.body;  
+        let{facname,nam}=req.body;  
 
         const loc = (
             {name:nam,
-                HOD:hod,
-            courses:cr,
-            academicmem:acd
       })
       const filter = {"name":facname};
-     //const update = {"name":newname,"departments":[department]};
      
         let cc=await facultyModel.findOne(filter);
-  //console.log(loc);
-   //console.log(cc.departments) ;
-   x=cc.departments;
-   x.push(loc);  
-        console.log(x);
-   //   console.log(loc);
-        let oldval={"departments":x}   
-     const res=  await  facultyModel.updateOne(filter,oldval);
-     res.json(res);
+   console.log(cc);
+   const dep = await new Departments({ "name": nam })
+  cc.departments.push(dep);
+  console.log(cc);
      
+     
+     
+     console.log(dep);
+     
+        let oldval={"departments":cc}   
+       await dep.save();
+       await cc.save();
+     res.send(cc.departments);
+    }     
+     catch (error) {
+        res.status(500).json({error:error.message})
+    }
+});
+
+
+
+router.route('/updateDepart').get(auth,async(req,res)=>{
+    try {
+        const token = req.header('auth-token'); 
+         const token_id = jwt.verify(token,"sign").staffID;
+       
+         let output="nothing";   
+         if(token_id.substring(0,2).localeCompare("hr") == 0){
+             {output = await HRmembers.find({id:token_id});}
+         }  
+         else
+         return res.status(400).json({msg:"You cannot do that you are not HR"});
+            if(output=="nothing")
+        return res.status(400).json({msg:"You cannot do that you are not HR"});
+      
+        let{oldnam,newnam}=req.body;  
+        const filter = {"name":oldnam};
+        const update={"name":newnam}
+        let cc=await DepartmentModel.findOneAndUpdate(filter,update,{new: true});
+          console.log(cc);
+          res.send(cc);
+       
+        
     }     
      catch (error) {
         res.status(500).json({error:error.message})

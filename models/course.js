@@ -6,7 +6,7 @@ const Schema   = mongoose.Schema ;
 const CO=mongoose.Schema({
     name: String,
     id:{type:String,required:true,unique:true,sparse:true},
-    instructors:{type:Schema.Types.ObjectId ,ref:"AM"},
+    instructors:[{type:Schema.Types.ObjectId ,ref:"AM"}],
     coordinator:{type:Schema.Types.ObjectId ,ref:"AM"},
     academicMembers:[{type:Schema.Types.ObjectId ,ref:"AM"}],
 
