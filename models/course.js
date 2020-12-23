@@ -1,15 +1,19 @@
 const mongoose=require('mongoose');
-const Schema   = mongoose.Schema ;
-
+//const locationModel = require('./location.js').schema;
+const acmem= require('./AcademicMemberModel.js').schema;//academic member
+const sl= require('./slot.js').schema;//academic member
 
 
 const CO=mongoose.Schema({
     name: String,
     id:{type:String,required:true,unique:true,sparse:true},
-    instructors:[{type:Schema.Types.ObjectId ,ref:"AM"}],
-    coordinator:{type:Schema.Types.ObjectId ,ref:"AM"},
-    academicMembers:[{type:Schema.Types.ObjectId ,ref:"AM"}],
-    slots:[{type:Schema.Types.ObjectId ,ref:"slot"}],
+
+    instructors:{type:[acmem]},
+    coordinator:{type:acmem},
+    academicMembers:[acmem],
+
+    slots:[sl],
+
     coverage:Number
 
     

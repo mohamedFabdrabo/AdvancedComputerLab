@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt=require('bcryptjs');
 const jwt=require('jsonwebtoken');
 const AcademicMembers = require('../models/AcademicMemberModel');
-const AttendanceRecords = require('../models/AttendanceRecords');
+//const AttendanceRecords = require('./models/AttendanceRecords');
 const Departments = require('../models/DepartmentModel');
 const HRmembers = require('../models/HRModel');
 const courses = require('../models/course');
@@ -49,9 +49,8 @@ router.route('/login').post(async(req,res)=>{
             return res.status(400).json({msg:"register first"});
             }
         }
-        //const matched=await bcrypt.compare(password,alreadyExist.password)
-        //if(!matched){
-           if(password!= alreadyExist.password){
+        const matched=await bcrypt.compare(password,alreadyExist.password)
+        if(!matched){
             return res.status(400).json({msg:"wrong password"});
         }
         const jwt_pass="sign";
@@ -112,11 +111,13 @@ router.route('/logout').post(auth,async(req,res)=>{
     }
 });
 
-router.route('/viewProfile').get(auth,async(req,res)=>{
+router.route('/viewProfile').post(auth,async(req,res)=>{
     try {
         const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
-       
+        console.log(token_id);
+        console.log(token_id.substring(0,2));
+        console.log(token_id.substring(0,2).localeCompare("hr"));
         let ouput;
         if(token_id.substring(0,2).localeCompare("hr") == 0)
             {output = await HRmembers.find({id:token_id});}

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Schema   = mongoose.Schema ;
+
 const attendanceSchema = mongoose.Schema({
     records:[{
         time : {type : Date},
