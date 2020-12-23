@@ -18,5 +18,21 @@ mongoose.connect(url,connectionParams).then(()=>{
 });
 
 //app.listen(3000)
+/*
+const x= require('./models/AcademicMemberModel.js');//academic member
+const newMember= new x({
+    email:"test@email.com",
+    password:"mypass",
+    id: "ac-5"
+}).save();
+//const MemberSaved =  newMember.save();*/
+/*const deps = require('./models/DepartmentModel');
+const x= require('./models/AcademicMemberModel.js');//academic member
 
-  
+const mydep =deps.findOne({name:"cs"});
+mydep.HOD=x.findOne({name:"myHOD"});*/
+
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+mongoose.set('useUnifiedTopology', true);
