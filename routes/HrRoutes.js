@@ -299,5 +299,28 @@ router.route('/updateDepart').get(auth,async(req,res)=>{
     }
 });
 
+router.route('/delDepart').delete(auth,async(req,res)=>{
+    try {
+        const token = req.header('auth-token'); 
+         const token_id = jwt.verify(token,"sign").staffID;
+       
+         let output="nothing";   
+         if(token_id.substring(0,2).localeCompare("hr") == 0){
+             {output = await HRmembers.find({id:token_id});}
+         }  
+         else
+         return res.status(400).json({msg:"You cannot do that you are not HR"});
+            if(output=="nothing")
+        return res.status(400).json({msg:"You cannot do that you are not HR"});
+        let{nam}=req.body;  
+        const filter = {"name":nam};
+        console.log("surtur");
+        const result=await DepartmentModel.findOneAndDelete(filter);
+        res.send(result);
+    }     
+     catch (error) {
+        res.status(500).json({error:error.message})
+    }
+});
 
 module.exports = router;
