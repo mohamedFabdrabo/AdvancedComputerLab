@@ -56,15 +56,18 @@ router.route('/viewLocations').get(async(req,res)=>{
 
 router.route('/addFaculty').post(async(req,res)=>{
     try {
-        //const dep = new Departments({ "name": "bio2" })
-        //const fac = new faculties({  "name": "pharmacy1" }).save();
 
-  const fac=  await faculties.findOne({name:"pharmacy1"});
+        const dep =  new Departments({ "name": req.body.dname })
+         //const fac =  new faculties({  "name":req.body.fname });
+      //  const fac = faculties.find
+  //const fac=  await faculties.findOne({name:"pharmacy1"});
  //fac.departments=dep;
- console.log(fac.departments);
-       const savedFaculty= await Departments.findOne({ _id:fac.departments});
-
-        res.json(savedFaculty);
+ //console.log(fac.departments);
+      // const savedFaculty= await Departments.findOne({ _id:fac.departments});
+        fac.departments.push(dep)
+        fac.save()
+        dep.save()
+        res.json("done");
         }
         
      catch (error) {
@@ -96,7 +99,4 @@ router.route('/addDepartment').post(async(req,res)=>{
     }
 });
 
-//{"name":"H9",
-//"type":"hall",
-//"capacity":"500"
-//}
+
