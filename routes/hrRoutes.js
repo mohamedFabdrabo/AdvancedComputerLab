@@ -320,7 +320,7 @@ router.route('/delDepart').delete(auth,async(req,res)=>{
         const result=await (await DepartmentModel.findOne(filter))._id;
         console.log(result);
         const filter1 = {departments:{$in:[result]}};
-        
+       DepartmentModel.findOneAndDelete(filter); 
         const remove = {$pull :{departments:{$in:result}}};
       const rep=await facultyModel.updateMany(filter1,remove);
         console.log("surtur");
@@ -334,5 +334,36 @@ router.route('/delDepart').delete(auth,async(req,res)=>{
         res.status(500).json({error:error.message})
     }
 });
+
+router.route('/addCourse').post(auth,async(req,res)=>{
+    try {
+        const token = req.header('auth-token'); 
+         const token_id = jwt.verify(token,"sign").staffID;
+       
+         let output="nothing";   
+         if(token_id.substring(0,2).localeCompare("hr") == 0){
+             {output = await HRmembers.find({id:token_id});}
+         }  
+         else
+         return res.status(400).json({msg:"You cannot do that you are not HR"});
+            if(output=="nothing")
+        return res.status(400).json({msg:"You cannot do that you are not HR"});
+      
+      
+        let{depname,nam,id}=req.body;  
+
+        const course = (
+            {name:nam,
+                id:id
+      })
+      const dep=DepartmentModel.findOne(course)
+dep.courses.push(course);
+  
+    }     
+     catch (error) {
+        res.status(500).json({error:error.message})
+    }
+});
+
 
 module.exports = router;
