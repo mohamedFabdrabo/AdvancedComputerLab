@@ -14,7 +14,7 @@ const AM=mongoose.Schema({
     role: String,
     leaveBalance: Number,  
     dayoff:String,
-    courses:[String],
+    courses:[[{type:Schema.Types.ObjectId ,ref:"CO"}]],
     faculty:{type:String},
     department:{type:String},
     schedule:[slot],
