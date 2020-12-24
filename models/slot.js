@@ -4,7 +4,7 @@ const Schema   = mongoose.Schema ;
 
 const slot=mongoose.Schema({
     course: {type:Schema.Types.ObjectId ,ref:"CO"},
-    id: String,
+    sid: String,
     day:String,
     timing:String,
     type:String,

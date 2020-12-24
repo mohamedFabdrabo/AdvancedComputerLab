@@ -358,7 +358,7 @@ router.route('/addCourse').post(auth,async(req,res)=>{
         const filter = {"name":depname};
         
       const dep=await DepartmentModel.findOne(filter)
-      const crs = await new courses(     {"name":nam,"id":id})
+      const crs = await new courses(     {"name":nam,"cid":id})
      dep.courses.push(crs);
      await dep.save();
      await crs.save();
@@ -390,8 +390,8 @@ router.route('/updateCourse').get(auth,async(req,res)=>{
         return res.status(400).json({msg:"You cannot do that you are not HR"});
        
         let{oldid,newid,newname}=req.body;  
-        const filter = {"id":oldid};
-        const update={"id":newid,"name":newname}
+        const filter = {"cid":oldid};
+        const update={"cid":newid,"name":newname}
         const dep=await courses.findOneAndUpdate(filter,update,{new: true});
         res.send(dep);
      
