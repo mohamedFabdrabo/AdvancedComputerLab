@@ -16,7 +16,8 @@ const facultyModel = require('../models/facultyModel');
 const DepartmentModel = require('../models/DepartmentModel');
 const { update } = require('../models/course');
 const { mquery } = require('mongoose');
-
+const { required } = require('joi');
+const {addCourseValidation} =require('../validation/HrRoutesValidation');
 const router = express.Router();
 
 const auth=(req,res,next)=>{
@@ -320,7 +321,7 @@ router.route('/delDepart').delete(auth,async(req,res)=>{
         const result=await (await DepartmentModel.findOne(filter))._id;
         console.log(result);
         const filter1 = {departments:{$in:[result]}};
-       DepartmentModel.findOneAndDelete(filter); 
+     await  DepartmentModel.findOneAndDelete(filter); 
         const remove = {$pull :{departments:{$in:result}}};
       const rep=await facultyModel.updateMany(filter1,remove);
         console.log("surtur");
@@ -337,6 +338,10 @@ router.route('/delDepart').delete(auth,async(req,res)=>{
 
 router.route('/addCourse').post(auth,async(req,res)=>{
     try {
+        const {error}=addCourseValidation(req.body);
+        if(error){
+            return res.status(400).json(error.details[0].message);
+        }
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
@@ -348,22 +353,95 @@ router.route('/addCourse').post(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-      
-      
+       
         let{depname,nam,id}=req.body;  
-
-        const course = (
-            {name:nam,
-                id:id
-      })
-      const dep=DepartmentModel.findOne(course)
-dep.courses.push(course);
-  
+        const filter = {"name":depname};
+        
+      const dep=await DepartmentModel.findOne(filter)
+      const crs = await new courses(     {"name":nam,"id":id})
+     dep.courses.push(crs);
+     await dep.save();
+     await crs.save();
+  console.log(dep);
+  res.send(dep);
     }     
      catch (error) {
         res.status(500).json({error:error.message})
     }
 });
+
+
+router.route('/updateCourse').get(auth,async(req,res)=>{
+    try {
+     /*   const {error}=updateCourseValidation(req.body);
+        if(error){
+            return res.status(400).json(error.details[0].message);
+        }*/
+        const token = req.header('auth-token'); 
+         const token_id = jwt.verify(token,"sign").staffID;
+       
+         let output="nothing";   
+         if(token_id.substring(0,2).localeCompare("hr") == 0){
+             {output = await HRmembers.find({id:token_id});}
+         }  
+         else
+         return res.status(400).json({msg:"You cannot do that you are not HR"});
+            if(output=="nothing")
+        return res.status(400).json({msg:"You cannot do that you are not HR"});
+       
+        let{oldid,newid,newname}=req.body;  
+        const filter = {"id":oldid};
+        const update={"id":newid,"name":newname}
+        const dep=await courses.findOneAndUpdate(filter,update,{new: true});
+        res.send(dep);
+     
+     // await dep.save();
+   //  await crs.save();
+  //console.log(dep);
+  //res.send(dep);
+    }     
+     catch (error) {
+        res.status(500).json({error:error.message})
+    }
+});
+
+router.route('/delCourse').delete(auth,async(req,res)=>{
+    try {
+        const token = req.header('auth-token'); 
+         const token_id = jwt.verify(token,"sign").staffID;
+       
+         let output="nothing";   
+         if(token_id.substring(0,2).localeCompare("hr") == 0){
+             {output = await HRmembers.find({id:token_id});}
+         }  
+         else
+         return res.status(400).json({msg:"You cannot do that you are not HR"});
+            if(output=="nothing")
+        return res.status(400).json({msg:"You cannot do that you are not HR"});
+        let{id}=req.body;
+        const filter = {"name":depnam,"id":id};
+         
+        const result=await (await courses.findOne(filter))._id;
+        console.log(result);
+        const filter1 = {courses:{$in:[result]}};
+    const val= await course.findOneAndDelete(filter); 
+     //console.log(val)
+       const remove = {$pull :{courses:{$in:result}}};
+     const rep=await Departments.updateMany(filter1,remove);
+        console.log("surtur");
+        res.send(rep);
+      
+
+       // console.log()
+    
+       // res.send(rep);
+    }     
+     catch (error) {
+        res.status(500).json({error:error.message})
+    }
+});
+
+
 
 
 module.exports = router;
