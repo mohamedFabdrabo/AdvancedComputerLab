@@ -44,7 +44,7 @@ router.route('/viewSchedule').get(auth,async(req,res)=>{
         const token_id = jwt.verify(token,"sign").staffID;
         member = await AcademicMembers.find({id:token_id});
         const schedule = member.schedule;
-        const Replacement = requests.find({sender:member,state:'Accepted',type:'Replacement'});
+        const Replacement = requests.find({sender:member._id,state:'Accepted',type:'Replacement'});
         res.send(schedule);
         res.send("There are Accepted Replacement : ")
         res.send(Replacement);
@@ -70,18 +70,18 @@ router.route('/SendSlotLinkingRequest').post(auth,async(req,res)=>{
         const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
         const member = await AcademicMembers.find({id:token_id});
-       const slot = req.body.slot;
+       const slot_id = req.body.slot_id;
         const course = req.body.coursename;// not needed
-        if(!slot || !course)
+        if(!slot_id || !course)
             return res.status(401).json({msg:"invalid inputs"});
         const coordinator = await course.find({name:course}).coordinator;
 
         const newRequest =new requests({
-            sender:member,
-            receiver:coordinator,
+            sender:member._id,
+            receiver:coordinator._id,
             state:'Pending',
             type:'Slot-linking',
-            slot: await slots.find(slot),
+            slot: await slots.find(slot_id),
         });
         await newRequest.save();
         res.send(newRequest);
@@ -90,6 +90,7 @@ router.route('/SendSlotLinkingRequest').post(auth,async(req,res)=>{
     }
 });
 router.route('/ChangeDayoffRequest').post(auth,async(req,res)=>{
+    
     try {
         const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
@@ -112,20 +113,20 @@ router.route('/ChangeDayoffRequest').post(auth,async(req,res)=>{
     }
 });
 
-router.route('/ViewRequests?status').get(auth,async(req,res)=>{
+router.route('/ViewRequests/:status').get(auth,async(req,res)=>{
     try {
         const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
         const member = await AcademicMembers.find({id:token_id});
-        const output;
+        let output;
         if(req.params.status.toLocaleLowerCase() === 'accepted')
-            output = await requests.find({sender:member,state='Accepted'});
+            output = await requests.find({sender:member,state:'Accepted'});
         else if(req.params.status.toLocaleLowerCase() === 'pending')
-            output =await  requests.find({sender:member,state='Pending'});
+            output =await  requests.find({sender:member,state:'Pending'});
         else if(req.params.status.toLocaleLowerCase() === 'rejected')
-            output = await requests.find({sender:member,state='Rejected'});
+            output = await requests.find({sender:member,state:'Rejected'});
         else
-        output = await requests.find({sender:member});
+            output = await requests.find({sender:member});
 
         res.send(output);
     } catch (error) {
@@ -139,10 +140,10 @@ router.route('/DeleteRequest').delete(auth,async(req,res)=>{
         const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
         const member = await AcademicMembers.find({id:token_id});
-        const r;
+        let r;
         r = await requests.findById(req.body.request);
         const todaydate = new Date();
-        const deleted;
+        let deleted;
         if(r.state == 'Pending' || r.requested_day < todaydate)
              deleted =  await requests.findById(req.body.request);
         

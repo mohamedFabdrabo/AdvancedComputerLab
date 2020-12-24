@@ -30,10 +30,8 @@ const auth=(req,res,next)=>{
         {
             return res.status(401).json({msg:"This functionality is only allowed for academic members only"});
         }
-        const member = await AcademicMembers.findOne({id:verified.staffID});
-        const thisCourse = await courses.find({coordinator:member});
-        if(!thisCourse)
-        return res.status(401).json({msg:"Sorry you are not course coordinator"});
+        //const member = await AcademicMembers.findOne({id:verified.staffID});
+        
         // console.log(verified);
         req.user=verified.id;
         req.TheCourse = thisCourse;
@@ -50,21 +48,116 @@ router.route('/viewSlotLinking').get(auth,async(req,res)=>{
         const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
         member = await AcademicMembers.find({id:token_id});
-        Slot_Linking_Requests = await requests.find({type:'Slot-linking',receiver:member});
+        const thisCourse = await courses.find({coordinator:member._id});
+        if(!thisCourse)
+            return res.status(401).json({msg:"Sorry you are not course coordinator"});
+        
+        Slot_Linking_Requests = await requests.find({type:'Slot-linking',receiver:member._id});
         res.send(Slot_Linking_Requests);
     } catch (error) {
         res.status(500).json({error:error.message})
     }
 });
 
-router.route('/viewSlotLinking').get(auth,async(req,res)=>{
+router.route('/acceptSlotLinking').put(auth,async(req,res)=>{
     try {
         const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
         member = await AcademicMembers.find({id:token_id});
-        
+        const thisCourse = await courses.find({coordinator:member._id});
+        if(!thisCourse)
+            return res.status(401).json({msg:"Sorry you are not course coordinator"});
+        Slot_Linking_Requests = await requests.findOneAndUpdate(
+            {_id:req.body.request_id,type:'Slot-linking',receiver:member._id}
+                ,{state:'Accepted'});
+        if(Slot_Linking_Requests) return res.status(401).json({msg:"No such request"});
+        const sender_id = Slot_Linking_Requests.sender;
+        const slot_id = Slot_Linking_Requests.slot;
+        TheSender = await AcademicMembers.findOneAndUpdate({_id:sender_id},
+            { $addToSet: { schedule: slot_id } });
+        res.send(Slot_Linking_Requests);
+
+    } catch (error) {
+        res.status(500).json({error:error.message})
+    }
+});
+
+
+router.route('/rejectSlotLinking').put(auth,async(req,res)=>{
+    try {
+        const token = req.header('auth-token'); 
+        const token_id = jwt.verify(token,"sign").staffID;
+        member = await AcademicMembers.find({id:token_id});
+        const thisCourse = await courses.find({coordinator:member._id});
+        if(!thisCourse)
+            return res.status(401).json({msg:"Sorry you are not course coordinator"});
+        Slot_Linking_Requests = await requests.findOneAndUpdate(
+            {_id:req.body.request_id,type:'Slot-linking',receiver:member._id}
+                ,{state:'Rejected'});
+        res.send(Slot_Linking_Requests);
+    } catch (error) {
+        res.status(500).json({error:error.message})
+    }
+});
+
+router.route('/AddSlot').post(auth,async(req,res)=>{
+    try {
+        const token = req.header('auth-token'); 
+        const token_id = jwt.verify(token,"sign").staffID;
+        member = await AcademicMembers.find({id:token_id});
+        const thisCourse = await courses.find({coordinator:member._id});
+        if(!thisCourse)
+            return res.status(401).json({msg:"Sorry you are not course coordinator"});
+        const newSlot = new slots({
+            course:req.body.course,
+            // id to be done
+            day:req.body.day,
+            timing:req.body.timing,
+            type:req.body.type,
+            location:req.body.location
+        });
+        newSlot.save();
         
     } catch (error) {
         res.status(500).json({error:error.message})
     }
 });
+router.route('/deleteSlot').delete(auth,async(req,res)=>{
+    try {
+        const token = req.header('auth-token'); 
+        const token_id = jwt.verify(token,"sign").staffID;
+        member = await AcademicMembers.find({id:token_id});
+        const thisCourse = await courses.find({coordinator:member._id});
+        if(!thisCourse)
+            return res.status(401).json({msg:"Sorry you are not course coordinator"});
+        const deleted = await slots.findByIdAndDelete({
+            sid:req.body.sid, 
+        });
+        res.send(deleted);
+    } catch (error) {
+        res.status(500).json({error:error.message})
+    }
+});
+router.route('/updateSlot').put(auth,async(req,res)=>{   
+    try {
+        const token = req.header('auth-token'); 
+        const token_id = jwt.verify(token,"sign").staffID;
+        member = await AcademicMembers.find({id:token_id});
+        const thisCourse = await courses.find({coordinator:member._id});
+        if(!thisCourse)
+            return res.status(401).json({msg:"Sorry you are not course coordinator"});
+        const updated = await slots.findOneAndUpdate({
+            sid:req.body.sid,
+        },
+        {
+            day:req.body.day,
+            timing:req.body.timing,
+            type:req.body.type,
+            location:req.body.location
+        });
+        res.send(updated);
+    } catch (error) {
+        res.status(500).json({error:error.message})
+    }
+});
+

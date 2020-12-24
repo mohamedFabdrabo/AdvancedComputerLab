@@ -1,19 +1,21 @@
 const mongoose=require('mongoose');
-const locationModel = require('./location.js').schema;
-const acmem= require('./AcademicMemberModel.js').schema;//academic member
-const sl= require('./slot.js').schema;//academic member
-
 const Schema   = mongoose.Schema ;
+//enum states = {Pending,Accepted,Rejecte,Cancelled}
 const RE=mongoose.Schema({
-    id:{type:String,required:true,unique:true,sparse:true},
-    sender:{type:{type:Schema.Types.ObjectId ,ref:"location"}},
+    rid:{type:number,required:true,unique:true,sparse:true},
+    sender:{type:{type:Schema.Types.ObjectId ,ref:"AM"}},
     receiver:[{type:{type:Schema.Types.ObjectId ,ref:"AM"}}],
-    state:{enum : ['Pending','Accepted','Rejected','Cancelled']},
-    type:{enum : ['Compensation','Replacement','Leave','Slot-linking','Change-Dayoff']},
-    slot:sl,
+    //state:{enum : ['Pending','Accepted','Rejected','Cancelled']},
+    state:String,
+    senderComment:String,
+    recieverComment:String,
+    senderDep:String,
+    slot:{type:Schema.Types.ObjectId ,ref:"slot"},
     newDayoff:String,
-    reason:String,
-    requested_day:Date
+    requested_day:Date,
+    type:String
+    //type:{enum : ['Compensation','Replacement','Annual','Slot-linking','dayOffChange','Sick','Maternity','Accidental']}
+    
 });
 
 module.exports=mongoose.model("RE",RE);

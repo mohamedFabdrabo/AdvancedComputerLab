@@ -4,11 +4,15 @@ const Schema   = mongoose.Schema ;
 
 const slot=mongoose.Schema({
     course: {type:Schema.Types.ObjectId ,ref:"CO"},
-    id: String,
+    sid: number,
     day:String,
-    timing: {enum : ['First','Second','Third','Fourth','Fifth']} ,
-    type: {enum : ['Lab','Tutorial']} ,
+    timing:String,
+    type:String,
+   //timing: {enum : ['First','Second','Third','Fourth','Fifth']} ,
+    //type: {enum : ['Lab','Tutorial','Lecture']} ,
+   //timing by hour ???
     location:{type:Schema.Types.ObjectId ,ref:"location"},
-    course:String,
+
+
 });
 module.exports=mongoose.model("slot",slot);
