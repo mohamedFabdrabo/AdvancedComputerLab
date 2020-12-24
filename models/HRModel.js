@@ -7,6 +7,7 @@ const HR=mongoose.Schema({
     id:{type:String,required:true,unique:true,sparse:true},
     salary:Number,
     leaveBalance: Number,
+    gender:String,
     password:{type:String,required:true,minlength:5},
     officeLocation:{type:Schema.Types.ObjectId ,ref:"location"},
     attendanceRecord:{type:Schema.Types.ObjectId ,ref:"attendanceSchema"},   

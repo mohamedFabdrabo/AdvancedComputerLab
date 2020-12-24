@@ -18,6 +18,7 @@ const { update } = require('../models/course');
 const { mquery } = require('mongoose');
 const { required } = require('joi');
 const {addCourseValidation} =require('../validation/HrRoutesValidation');
+const HRModel = require('../models/HRModel');
 const router = express.Router();
 
 const auth=(req,res,next)=>{
@@ -37,7 +38,7 @@ const auth=(req,res,next)=>{
         req.user=verified.id;
         next();
     } catch (error) {
-        res.status(500).json({error:error.message})
+        return  res.status(500).json({error:error.message})
     }
 }
 
@@ -74,7 +75,7 @@ router.route('/addLocation').post(auth,async(req,res)=>{
         }
         
      catch (error) {
-        res.status(500).json({error:error.message})
+        return  res.status(500).json({error:error.message})
     }
  
 });
@@ -103,7 +104,7 @@ router.route('/delLocation').delete(auth,async(req,res)=>{
        res.json(deleted);
     }
      catch (error) {
-        res.status(500).json({error:error.message})
+        return res.status(500).json({error:error.message})
     }
  
 });
@@ -138,7 +139,7 @@ router.route('/updateLocation').get(auth,async(req,res)=>{
           console.log("fuck you as well")
     }
      catch (error) {
-        res.status(500).json({error:error.message})
+        return  res.status(500).json({error:error.message})
     }
 });
 router.route('/addFaculty').post(auth,async(req,res)=>{
@@ -167,7 +168,7 @@ router.route('/addFaculty').post(auth,async(req,res)=>{
         res.json(savedFaculty);
         }     
      catch (error) {
-        res.status(500).json({error:error.message})
+        return  res.status(500).json({error:error.message})
     }
 });
 
@@ -200,7 +201,7 @@ router.route('/updateFaculty').get(auth,async(req,res)=>{
         }
 
      catch (error) {
-        res.status(500).json({error:error.message})
+        return   res.status(500).json({error:error.message})
     }
 });
 
@@ -225,7 +226,7 @@ router.route('/delFaculty').delete(auth,async(req,res)=>{
        res.json(deleted);
     }
      catch (error) {
-        res.status(500).json({error:error.message})
+        return res.status(500).json({error:error.message})
     }
  
 });
@@ -258,17 +259,17 @@ router.route('/addDepart').post(auth,async(req,res)=>{
   cc.departments.push(dep);
   console.log(cc);
      
-     
+     dep.HOD=null;
      
      console.log(dep);
-     
+     console.log(dep.HOD);
         let oldval={"departments":cc}   
        await dep.save();
        await cc.save();
      res.send(cc.departments);
     }     
      catch (error) {
-        res.status(500).json({error:error.message})
+        return  res.status(500).json({error:error.message})
     }
 });
 
@@ -298,7 +299,7 @@ router.route('/updateDepart').get(auth,async(req,res)=>{
         
     }     
      catch (error) {
-        res.status(500).json({error:error.message})
+        return  res.status(500).json({error:error.message})
     }
 });
 
@@ -332,22 +333,22 @@ router.route('/delDepart').delete(auth,async(req,res)=>{
         res.send(rep);
     }     
      catch (error) {
-        res.status(500).json({error:error.message})
+     return   res.status(500).json({error:error.message})
     }
 });
 
 router.route('/addCourse').post(auth,async(req,res)=>{
     try {
-        const {error}=addCourseValidation(req.body);
-        if(error){
-            return res.status(400).json(error.details[0].message);
+      const {error1}=addCourseValidation(req.body);
+        if(error1){
+            return res.status(400).json(error1.details[0].message);
         }
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
          let output="nothing";   
          if(token_id.substring(0,2).localeCompare("hr") == 0){
-             {output = await HRmembers.find({id:token_id});}
+             {output = await HRmembers.find({ccid:token_id});}
          }  
          else
          return res.status(400).json({msg:"You cannot do that you are not HR"});
@@ -356,17 +357,19 @@ router.route('/addCourse').post(auth,async(req,res)=>{
        
         let{depname,nam,id}=req.body;  
         const filter = {"name":depname};
-        
       const dep=await DepartmentModel.findOne(filter)
-      const crs = await new courses(     {"name":nam,"cid":id})
-     dep.courses.push(crs);
+      console.log(dep);
+    
+      const crs = await new courses({"name":nam,"cid":id})
+      
+    await dep.courses.push(crs);
      await dep.save();
      await crs.save();
-  console.log(dep);
+  //console.log(dep);
   res.send(dep);
     }     
      catch (error) {
-        res.status(500).json({error:error.message})
+return res.status(500).json({error:error.message})
     }
 });
 
@@ -419,25 +422,106 @@ router.route('/delCourse').delete(auth,async(req,res)=>{
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
         let{id}=req.body;
-        const filter = {"name":depnam,"id":id};
+        const filter = {"cid":id};
          
-        const result=await (await courses.findOne(filter))._id;
+        const result= ( await courses.findOne(filter))._id;
         console.log(result);
         const filter1 = {courses:{$in:[result]}};
-    const val= await course.findOneAndDelete(filter); 
+   // const val= await course.findOneAndDelete(filter); 
      //console.log(val)
        const remove = {$pull :{courses:{$in:result}}};
-     const rep=await Departments.updateMany(filter1,remove);
+     let rep=await Departments.updateMany(filter1,remove);
         console.log("surtur");
-        res.send(rep);
+     //   res.send(rep);
       
-
+       rep= await courses.deleteMany(filter)
+    
        // console.log()
     
-       // res.send(rep);
+        res.send(rep);
     }     
      catch (error) {
         res.status(500).json({error:error.message})
+    }
+});
+
+router.route('/registerMem').post(auth,async(req,res)=>{
+    try {
+      const {error1}=addCourseValidation(req.body);
+        if(error1){
+            return res.status(400).json(error1.details[0].message);
+        }
+        const token = req.header('auth-token'); 
+         const token_id = jwt.verify(token,"sign").staffID;
+       
+         let output="nothing";   
+         if(token_id.substring(0,2).localeCompare("hr") == 0){
+             {output = await HRmembers.find({ccid:token_id});}
+         }  
+         else
+         return res.status(400).json({msg:"You cannot do that you are not HR"});
+            if(output=="nothing")
+        return res.status(400).json({msg:"You cannot do that you are not HR"});
+   
+        let{gender,name,email,salary,officeLocation,role,dayoff,department}=req.body; 
+      const loc=await  locations.findOne(officeLocation);
+      loc.occupation=1;
+   console.log(AcademicMembers.count1)
+     // console.log(loc);
+      if(loc.occupation==loc.capacity){
+        return res.status(400).json({msg:"Max Capacity in this room"}); 
+      }
+      await loc.save();
+      console.log(role);
+      if(role==="HR"){
+          console.log("HI")
+        const id1="HR-9999";
+
+    const crs = await new HRModel({"id":id1,"gender":gender,"name":name,"email":email,
+    "salary":salary,"password":123456,"officeLocation":loc._id,"role":role,
+    "dayoff":"Saturday",
+    })
+    const saveLocation= await crs.save();
+    res.send(saveLocation);
+    
+    
+
+      }
+else{
+
+      console.log(department);
+      const filter = {"name":department};
+         
+      const dep=await  Departments.findOne(filter);
+      console.log(loc._id);
+      const id1="AC-9999";
+      const crs = await new AcademicMembers({"id":id1,"gender":gender,"name":name,"email":email,
+    "salary":salary,"password":123456,"officeLocation":loc._id,"role":role,
+    "dayoff":dayoff,"department":department
+    })
+    
+     // console.log(dep.HOD);
+      if(role=="HOD")
+    dep.HOD=crs._id;
+  // console.log(crs);
+    await dep.save();
+    const saveLocation= await crs.save();
+    res.send(saveLocation);
+    
+    
+}
+
+
+
+
+
+  
+
+      
+
+    }     
+     catch (error) {
+return res.status(500).json({error:error.message})
     }
 });
 
