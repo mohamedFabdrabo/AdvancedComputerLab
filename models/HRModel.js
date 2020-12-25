@@ -4,7 +4,7 @@ const locationModel = require('./location.js').schema;
 const HR=mongoose.Schema({
     name: String,
     email:{type:String,required:true,unique:true,sparse:true},
-    id:{type:String,required:true,unique:true,sparse:true},
+    member_id:{type:String,required:true,unique:true,sparse:true},
     salary:Number,
     leaveBalance: Number,
     password:{type:String,required:true,minlength:5},

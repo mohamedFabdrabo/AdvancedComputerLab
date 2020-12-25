@@ -1,6 +1,5 @@
 const express = require('express');
 const jwt=require('jsonwebtoken');
-const jwtBlacklist = require('jwt-blacklist')//(jwt);
 const Departments = require('../models/DepartmentModel');
 const faculties = require('../models/facultyModel');
 const locations = require('../models/location');

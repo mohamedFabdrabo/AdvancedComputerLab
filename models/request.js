@@ -2,7 +2,7 @@ const mongoose=require('mongoose');
 const Schema   = mongoose.Schema ;
 //enum states = {Pending,Accepted,Rejecte,Cancelled}
 const RE=mongoose.Schema({
-    rid:{type:String,required:true,unique:true,sparse:true},
+    rid:{type:number,required:true,unique:true,sparse:true},
     sender:{type:{type:Schema.Types.ObjectId ,ref:"AM"}},
     receiver:[{type:{type:Schema.Types.ObjectId ,ref:"AM"}}],
     //state:{enum : ['Pending','Accepted','Rejected','Cancelled']},
