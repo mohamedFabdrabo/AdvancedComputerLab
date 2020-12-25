@@ -342,8 +342,6 @@ router.route('/updateDepart').get(auth,async(req,res)=>{
         let cc=await DepartmentModel.findOneAndUpdate(filter,update,{new: true});
           console.log(cc);
           res.send(cc);
-       
-        
     }     
      catch (error) {
         return  res.status(500).json({error:error.message})

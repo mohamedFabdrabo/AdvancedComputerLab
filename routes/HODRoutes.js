@@ -738,56 +738,40 @@ router.route('/removefromCourse/:id/:course').put(auth, async (req, res) => {
     }
 });
 ///functionality 7 assign an academic member to be a course coordinator  
-router.route('/assignCoordinator/:id/:course').put(auth, async (req, res) => {
+router.route('/courseCoverage/:name').get(auth, async (req, res) => {
     try {
 
         const token = req.header('auth-token');
         const token_id = jwt.verify(token, "sign").staffID;
         const user = await AcademicMembers.findOne({ _id: token_id });
-        if (user.role != "Instructor") {
-            res.json("access denied")
+        if (user.role != "HOD" && user.role != "Instructor") {
+            return res.json("access denied")
         }
-        else {
-            var mycourse;
-            let found = false;
-            user.courses.forEach(async (element, index, arr) => {
-                const course = await courses.findOne({ _id: element })
-                if (course.instructors.includes(user._id) && course.name == req.params.course) {
-                    mycourse = course;
-                    found = true;
-                }
-                if (index == arr.length - 1 && found == false)
-                    res.json("please enter a valid course name ")
-                else
-                    proceed();
-
-            });
-            async function proceed() {
-                const mycoordinator = await AcademicMembers.findOne({ member_id: req.params.id });
-                if (!mycoordinator)
-                    res.json("no staff member with this name")
-                else {
-                    if (mycourse.coordinator == mycoordinator._id)
-                        res.json("already assigned");
-                    else {
-                        mycourse.coordinator = mycoordinator._id;
-                        mycourse.academicMembers.push(mycoordinator);
-                        mycoordinator.role = "coordinator";
-                        mycoordinator.courses.push(mycourse);
-                        await mycoordinator.save();
-                        await mycourse.save();
-                        res.json("assigned successfully");
-                    }
-                }
+        const depname = user.department;
+        const mydepm = await Departments.findOne({ name: depname });
+        var mycourse; var result; var found = false;
+        const mycourses = mydepm.courses;
+        mycourses.forEach(async (element, index, arr) => {
+            const course = await courses.findOne({ _id: element });
+            if (course.name == req.params.name) {
+                mycourse = course;
+                found = true;
+                result = course.coverage;
+                console.log(course,course.coverage)
+                if (found & !mycourse.instructors.includes(user._id) && user.role == "Instructor")
+                    return res.json("your are not an instructor of this course")
             }
-        }
+            if (index == arr.length - 1 && !found)
+                return res.json("please enter a valid course name");
+            else return res.json(mycourse.name + " : " + result);
+
+        });
+
     }
     catch (error) {
         return res.status(500).json({ error: error.message })
     }
-});
-
-//extra functionality : add members to course 
+});//extra functionality : add members to course 
 router.route('/assignMember/:id/:course').put(auth, async (req, res) => {
     try {
         const token = req.header('auth-token');
