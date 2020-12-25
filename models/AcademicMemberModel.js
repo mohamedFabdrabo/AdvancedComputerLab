@@ -10,7 +10,7 @@ const AM=mongoose.Schema({
     salary:Number,
     password:{type:String,required:true,minlength:5},
    officeLocation:{type:Schema.Types.ObjectId ,ref:"location"},
-    attendanceRecord:{type:Schema.Types.ObjectId ,ref:"attendanceSchema"},    
+    attendanceRecord:[{   time : {type : Date}, signIn : {type : Boolean} }],    
     role: String,
     leaveBalance: Number,  
     dayoff:String,

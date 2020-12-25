@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose= require('mongoose');
-const autoIncrement = require('mongoose-auto-increment');
+//const autoIncrement = require('mongoose-auto-increment');
 const bcrypt=require('bcryptjs');
 const jwt=require('jsonwebtoken');
 const AcademicMembers = require('../models/AcademicMemberModel');
@@ -60,7 +60,7 @@ router.route('/viewSchedule').get(auth,async(req,res)=>{
             console.log(Theschedule);
         };
              
-        console.log(Theschedule);
+        //console.log(Theschedule);
         res.send(Theschedule);
       
         

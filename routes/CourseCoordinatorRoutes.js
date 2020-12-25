@@ -69,7 +69,7 @@ router.route('/acceptSlotLinking').put(auth,async(req,res)=>{
         const thisCourse = await courses.findOne({coordinator:member._id});
         if(!thisCourse)
             return res.status(401).json({msg:"Sorry you are not course coordinator"});
-0
+
         Slot_Linking_Requests = await requests.findOneAndUpdate(
             {rid:req.body.request_id,type:'Slot-linking',state:'Pending',receiver:{_id:member._id}}
                 ,{state:'Accepted'},
