@@ -342,6 +342,8 @@ router.route('/updateDepart').get(auth,async(req,res)=>{
         let cc=await DepartmentModel.findOneAndUpdate(filter,update,{new: true});
           console.log(cc);
           res.send(cc);
+
+        
     }     
      catch (error) {
         return  res.status(500).json({error:error.message})
@@ -544,11 +546,11 @@ router.route('/registerMem').post(auth,async(req,res)=>{
     "salary":salary,"password":123456,"officeLocation":loc._id,"role":role,
     "dayoff":"Saturday","attendanceRecord":ar
     })
-    console.log(crs.attendanceRecord);
     const saveLocation= await crs.save();
     let z=crs.count1;
+    console.log(z);
     const x="hr-"+z;
-    crs.id=x;
+    crs.member_id=x;
     const saveLocation1= await crs.save();
     
     res.send(saveLocation1);
@@ -566,18 +568,20 @@ else{
     "salary":salary,"password":123456,"officeLocation":loc._id,"role":role,
     "dayoff":dayoff,"department":department,"attendanceRecord":ar
     })
-      if(role=="HOD")
-    dep.HOD=crs._id;
+
+ 
+      if(role=="HOD"){
+        dep.HOD=crs._id;
+      }
     else{
         dep.AcademicMembers=crs._id;
     }
-  // console.log(crs);
   if(dep!=null)     
   await dep.save();
     const saveLocation= await crs.save();
     const z=crs.count1;
     const x="ac-"+z;
-    crs.id=x;
+    crs.member_id=x;
     const saveLocation1= await crs.save();
     
     res.send(saveLocation1);
@@ -616,23 +620,16 @@ router.route('/updateMem').get(auth,async(req,res)=>{
          
         }
         if(role=="HR"){
-            const filter = {"id":id};
-            console.log("fuck this course");
+            const filter = {"member_id":id};
             const acm=await HRModel.findOne(filter);
             console.log(acm);
             const filter1 = {"name":officeLocation};
-    
             let loc1=await locations.findOne(filter1);
            const loc2=loc1._id;
-            console.log(acm.officeLocation);
-            console.log(loc2);
-            
+    
             if(acm.officeLocation+""!==loc2+""){
-                console.log("fuck me");
                 const filter2 = {"_id":acm.officeLocation};
                 let loc=await locations.findOne(filter2);
-                console.log(loc1.occupation);
-                console.log(loc1.capacity);
                if(loc1.occupation+""===""+loc1.capacity){
                 return res.status(400).json({msg:"This room is full"});
                }
@@ -643,7 +640,7 @@ router.route('/updateMem').get(auth,async(req,res)=>{
                    await loc1.save();
                    await loc.save();
                    
-                   const update = {"id":id,"email":email,"officeLocation":loc1._id,"role":role,"dayoff":dayoff};
+                   const update = {"member_id":id,"email":email,"officeLocation":loc1._id,"role":role,"dayoff":dayoff};
                 
                    const result1=await HRModel.findOneAndUpdate(filter,update);
                    res.send(result1);
@@ -651,7 +648,8 @@ router.route('/updateMem').get(auth,async(req,res)=>{
                }
             }
             else{
-                const update = {"id":id,"email":email,"officeLocation":loc1._id,"role":role,"dayoff":dayoff};
+             
+                const update = {"member_id":id,"email":email,"officeLocation":loc1._id,"role":role,"dayoff":dayoff};
                
              const result1=await HRModel.findOneAndUpdate(filter,update);
                 console.log(result1);
@@ -660,8 +658,7 @@ router.route('/updateMem').get(auth,async(req,res)=>{
             
 
         }
-        const filter = {"id":id};
-        console.log("fuck this course");
+        const filter = {"member_id":id};
         const acm=await AcademicMemberModel.findOne(filter);
         console.log(acm);
         const filter1 = {"name":officeLocation};
@@ -672,7 +669,6 @@ router.route('/updateMem').get(auth,async(req,res)=>{
         console.log(loc2);
         
         if(acm.officeLocation+""!==loc2+""){
-            console.log("fuck me");
             const filter2 = {"_id":acm.officeLocation};
             let loc=await locations.findOne(filter2);
             console.log(loc1.occupation);
@@ -687,7 +683,7 @@ router.route('/updateMem').get(auth,async(req,res)=>{
                await loc1.save();
                await loc.save();
                
-               const update = {"id":id,"email":email,"officeLocation":loc1._id,"role":role,"dayoff":dayoff};
+               const update = {"member_id":id,"email":email,"officeLocation":loc1._id,"role":role,"dayoff":dayoff};
             
                const result1=await AcademicMemberModel.findOneAndUpdate(filter,update);
                res.send(result1);
@@ -695,7 +691,7 @@ router.route('/updateMem').get(auth,async(req,res)=>{
            }
         }
         else{
-            const update = {"id":id,"email":email,"officeLocation":loc1._id,"role":role,"dayoff":dayoff};
+            const update = {"member_id":id,"email":email,"officeLocation":loc1._id,"role":role,"dayoff":dayoff};
            
          const result1=await AcademicMemberModel.findOneAndUpdate(filter,update);
             console.log(result1);
@@ -734,7 +730,7 @@ router.route('/delMem').delete(auth,async(req,res)=>{
         if(id.substring(0,2).localeCompare("hr")==0){
          
             
-            const filter2 = {"id":id};
+            const filter2 = {"member_id":id};
          const acm=await HRModel.findOne(filter2)
          if(acm==null){
             return res.status(400).json({msg:"user was deleted"});
@@ -750,7 +746,7 @@ router.route('/delMem').delete(auth,async(req,res)=>{
     
         }
           else{
-            const filter2 = {"id":id};
+            const filter2 = {"member_id":id};
          const acm=await AcademicMemberModel.findOne(filter2)
          if(acm==null){
             return res.status(400).json({msg:"user was deleted"});
@@ -799,10 +795,13 @@ router.route('/addsignup').post(auth,async(req,res)=>{
          
          
         let{staffid,rec}=req.body; 
-        const filter3 = {"id":staffid};
+        const filter3 = {"member_id":staffid};
         if(staffid.substring(0,2).localeCompare("hr")==0){
         let xx=await HRModel.findOne(filter3)
-       xx.attendanceRecord.push(rec);
+       console.log(xx);
+       console.log(xx.attendanceRecord)
+        xx.attendanceRecord.push(rec);
+       
        res.send(xx.attendanceRecord);
        await xx.save(); 
         }
@@ -851,7 +850,9 @@ router.route('/viewattandence').get(auth,async(req,res)=>{
          console.log(id);
             let xx=await HRModel.findOne(filter3)
             console.log(xx);
-         }
+            res.send(xx.attendanceRecord);    
+        
+        }
          else{
             let xx=await AcademicMemberModel.findOne(filter3)
             res.send(xx.attendanceRecord);    
@@ -882,9 +883,8 @@ router.route('/updateSalary').get(auth,async(req,res)=>{
           return res.status(400).json({msg:"You cannot do that you are not HR"});
              if(output=="nothing")
          return res.status(400).json({msg:"You cannot do that you are not HR"});
-        
         let{id,salary1}=req.body; 
-        const filter3 = {"id":id};
+        const filter3 = {"member_id":id};
         
         if(id.substring(0,2).localeCompare("hr")==0){
         let crs=await HRModel.findOne(filter3);

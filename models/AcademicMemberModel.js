@@ -16,7 +16,7 @@ const AM = mongoose.Schema({
     name: String,
     gender:String,
     email:{type:String,required:true,unique:true,sparse:true},
-    member_id: { type: String, required: true, unique: true, sparse: true },
+    member_id: { type: String, unique: true, sparse: true },
     salary:Number,
     password:{type:String,required:true,minlength:5},
    officeLocation:{type:Schema.Types.ObjectId ,ref:"location"},
