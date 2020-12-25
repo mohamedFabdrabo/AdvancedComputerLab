@@ -17,9 +17,13 @@ const DepartmentModel = require('../models/DepartmentModel');
 const { update } = require('../models/course');
 const { mquery } = require('mongoose');
 const { required } = require('joi');
+const Joi = require('joi'); 
+
 const {addCourseValidation} =require('../validation/HrRoutesValidation');
 const HRModel = require('../models/HRModel');
 const AcademicMemberModel = require('../models/AcademicMemberModel');
+const AttendanceRecords = require('../models/AttendanceRecords');
+const e = require('express');
 const router = express.Router();
 
 const auth=(req,res,next)=>{
@@ -46,7 +50,10 @@ const auth=(req,res,next)=>{
 
 router.route('/addLocation').post(auth,async(req,res)=>{
     try {
-        console.log("fuck my fucking life")
+        const {error1}=addLocationValidation(req.body);
+        if(error1){
+            return res.status(400).json(error1.details[0].message);
+        }
        const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
         let output="nothing";   
@@ -58,12 +65,6 @@ router.route('/addLocation').post(auth,async(req,res)=>{
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
         let {nam,cap,typ,occ}=req.body;
-        if(typeof occ != 'number'||typeof cap!='string'||typeof nam!='string'||typeof typ!='string'){
-        return res.status(403).json({msg:"plz enter types correclty "});   
-       }
-       if(typ!=="office"&&typ!=="lab"&&typ!=="hall"&&typ!="tutorial"){
-        return res.status(400).json({msg:"only valid types are hall , tutorial , lab ,office"});       
-         }
         const loc = new locations(
               {name:nam,
                 capacity:cap,
@@ -340,10 +341,20 @@ router.route('/delDepart').delete(auth,async(req,res)=>{
 
 router.route('/addCourse').post(auth,async(req,res)=>{
     try {
-      const {error1}=addCourseValidation(req.body);
+       
+        const schema=Joi.object({
+
+            depname:Joi.string().required(),
+            nam:Joi.string().required(),
+            id:Joi.string().required()
+        });
+        
+        const{error1}= schema.validate(req.body);
         if(error1){
             return res.status(400).json(error1.details[0].message);
         }
+        
+
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
@@ -441,18 +452,15 @@ router.route('/delCourse').delete(auth,async(req,res)=>{
     
         res.send(rep);
     }     
-     catch (error) {
+    catch (error) {
         res.status(500).json({error:error.message})
     }
 });
 
 router.route('/registerMem').post(auth,async(req,res)=>{
-    try {
-      const {error1}=addCourseValidation(req.body);
-        if(error1){
-            return res.status(400).json(error1.details[0].message);
-        }
         
+        
+   try{     
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
@@ -464,32 +472,30 @@ router.route('/registerMem').post(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-     
-        AM.findByIdAndUpdateAsync({count1: 'entityId'}, {$inc: { seq: 1} }, {new: true, upsert: true}).then(function(count) {
-            console.log("...count: "+JSON.stringify(count));
-            doc.sort = count.seq;
-            next();
-        })
-
-        let{gender,name,email,salary,officeLocation,role,dayoff,department}=req.body; 
+        
+       let{gender,name,email,salary,officeLocation,role,dayoff,department,ar}=req.body; 
       const loc=await  locations.findOne(officeLocation);
-      loc.occupation=1;
     // console.log(loc);
       if(loc.occupation==loc.capacity){
         return res.status(400).json({msg:"Max Capacity in this room"}); 
       }
+      loc.occupation++;
       await loc.save();
-      console.log(role);
       if(role==="HR"){
-          console.log("HI")
-        const id1="HR-9999";
+          console.log("HI");
 
-    const crs = await new HRModel({"id":id1,"gender":gender,"name":name,"email":email,
+    const crs = await new HRModel({"gender":gender,"name":name,"email":email,
     "salary":salary,"password":123456,"officeLocation":loc._id,"role":role,
-    "dayoff":"Saturday",
+    "dayoff":"Saturday","attendanceRecord":ar
     })
+    console.log(crs.attendanceRecord);
     const saveLocation= await crs.save();
-    res.send(saveLocation);
+    let z=crs.count1;
+    const x="hr-"+z;
+    crs.id=x;
+    const saveLocation1= await crs.save();
+    
+    res.send(saveLocation1);
     
     
 
@@ -500,38 +506,334 @@ else{
       const filter = {"name":department};
          
       const dep=await  Departments.findOne(filter);
-      console.log(loc._id);
-      const id1="AC-9999";
       const crs = await new AcademicMembers({"gender":gender,"name":name,"email":email,
     "salary":salary,"password":123456,"officeLocation":loc._id,"role":role,
-    "dayoff":dayoff,"department":department
+    "dayoff":dayoff,"department":department,"attendanceRecord":ar
     })
-    console.log(AcademicMemberModel.count1) ;  
       if(role=="HOD")
     dep.HOD=crs._id;
-  // console.log(crs);
-    await dep.save();
-    const saveLocation= await crs.save();
-    res.send(saveLocation);
-    
-    
-}
-
-
-
-
-
-  
-
-      
-
-    }     
-     catch (error) {
-return res.status(500).json({error:error.message})
+    else{
+        dep.AcademicMembers=crs._id;
     }
+  // console.log(crs);
+  if(dep!=null)     
+  await dep.save();
+    const saveLocation= await crs.save();
+    const z=crs.count1;
+    const x="ac-"+z;
+    crs.id=x;
+    const saveLocation1= await crs.save();
+    
+    res.send(saveLocation1);
+
+}
+   }
+   catch (error) {
+    res.status(500).json({error:error.message})
+}
 });
 
 
+router.route('/updateMem').get(auth,async(req,res)=>{
+        
+        
+    try{     
+         const token = req.header('auth-token'); 
+          const token_id = jwt.verify(token,"sign").staffID;
+        
+          let output="nothing";   
+          if(token_id.substring(0,2).localeCompare("hr") == 0){
+              {output = await HRmembers.find({ccid:token_id});}
+          }  
+          else
+          return res.status(400).json({msg:"You cannot do that you are not HR"});
+             if(output=="nothing")
+         return res.status(400).json({msg:"You cannot do that you are not HR"});
+         
+        let{id,email,officeLocation,role,dayoff}=req.body; 
+        if(id.substring(0,2).localeCompare("hr") == 0&&dayoff!="Saturday"){
+            return res.status(400).json({msg:"You cannot change your day off"});
+         
+        }
+        if(role=="HR"){
+            const filter = {"id":id};
+            console.log("fuck this course");
+            const acm=await HRModel.findOne(filter);
+            console.log(acm);
+            const filter1 = {"name":officeLocation};
+    
+            let loc1=await locations.findOne(filter1);
+           const loc2=loc1._id;
+            console.log(acm.officeLocation);
+            console.log(loc2);
+            
+            if(acm.officeLocation+""!==loc2+""){
+                console.log("fuck me");
+                const filter2 = {"_id":acm.officeLocation};
+                let loc=await locations.findOne(filter2);
+                console.log(loc1.occupation);
+                console.log(loc1.capacity);
+               if(loc1.occupation+""===""+loc1.capacity){
+                return res.status(400).json({msg:"This room is full"});
+               }
+               else{
+                   
+                   loc.occupation-=1;
+                   loc1.occupation+=1;
+                   await loc1.save();
+                   await loc.save();
+                   
+                   const update = {"id":id,"email":email,"officeLocation":loc1._id,"role":role,"dayoff":dayoff};
+                
+                   const result1=await HRModel.findOneAndUpdate(filter,update);
+                   res.send(result1);
+           
+               }
+            }
+            else{
+                const update = {"id":id,"email":email,"officeLocation":loc1._id,"role":role,"dayoff":dayoff};
+               
+             const result1=await HRModel.findOneAndUpdate(filter,update);
+                console.log(result1);
+                  res.send(result1);
+            }
+            
+
+        }
+        const filter = {"id":id};
+        console.log("fuck this course");
+        const acm=await AcademicMemberModel.findOne(filter);
+        console.log(acm);
+        const filter1 = {"name":officeLocation};
+
+        let loc1=await locations.findOne(filter1);
+       const loc2=loc1._id;
+        console.log(acm.officeLocation);
+        console.log(loc2);
+        
+        if(acm.officeLocation+""!==loc2+""){
+            console.log("fuck me");
+            const filter2 = {"_id":acm.officeLocation};
+            let loc=await locations.findOne(filter2);
+            console.log(loc1.occupation);
+            console.log(loc1.capacity);
+           if(loc1.occupation+""===""+loc1.capacity){
+            return res.status(400).json({msg:"This room is full"});
+           }
+           else{
+               
+               loc.occupation-=1;
+               loc1.occupation+=1;
+               await loc1.save();
+               await loc.save();
+               
+               const update = {"id":id,"email":email,"officeLocation":loc1._id,"role":role,"dayoff":dayoff};
+            
+               const result1=await AcademicMemberModel.findOneAndUpdate(filter,update);
+               res.send(result1);
+       
+           }
+        }
+        else{
+            const update = {"id":id,"email":email,"officeLocation":loc1._id,"role":role,"dayoff":dayoff};
+           
+         const result1=await AcademicMemberModel.findOneAndUpdate(filter,update);
+            console.log(result1);
+              res.send(result1);
+        }
+        
+    
+    }
+        catch (error) {
+            return res.status(500).json({error:error.message})
+        }
+         
+});
+
+
+router.route('/delMem').delete(auth,async(req,res)=>{
+        
+        
+    try{     
+         const token = req.header('auth-token'); 
+          const token_id = jwt.verify(token,"sign").staffID;
+        
+          let output="nothing";   
+          if(token_id.substring(0,2).localeCompare("hr") == 0){
+              {output = await HRmembers.find({ccid:token_id});}
+          }  
+          else
+          return res.status(400).json({msg:"You cannot do that you are not HR"});
+             if(output=="nothing")
+         return res.status(400).json({msg:"You cannot do that you are not HR"});
+         
+        let{id}=req.body; 
+        if(id.substring(0,2).localeCompare("hr")==0){
+         
+            
+            const filter2 = {"id":id};
+         const acm=await HRModel.findOne(filter2)
+         if(acm==null){
+            return res.status(400).json({msg:"user was deleted"});
+         }
+         const filter3 = {"_id":acm.officeLocation};
+         const loc=await locations.findOne(filter3);
+         loc.occupation-=1;
+        await loc.save();
+        const result=await HRModel.findOneAndDelete(filter2)  
+       // console.log(acm);
+       // console.log(loc);
+         res.send(result);
+    
+        }
+          else{
+            const filter2 = {"id":id};
+         const acm=await AcademicMemberModel.findOne(filter2)
+         if(acm==null){
+            return res.status(400).json({msg:"user was deleted"});
+         }
+         const filter3 = {"_id":acm.officeLocation};
+         const loc=await locations.findOne(filter3);
+         loc.occupation-=1;
+         const filter = {"name":acm.department};
+
+         const dep=await  DepartmentModel.findOne(filter);
+        console.log(dep);
+        await loc.save();
+        const result=await AcademicMemberModel.findOneAndDelete(filter2)
+         
+       // console.log(acm);
+       // console.log(loc);
+         res.send(result);
+    
+    }
+        }
+        catch (error) {
+            return res.status(500).json({error:error.message})
+        }
+         
+});
+
+router.route('/addsignup').post(auth,async(req,res)=>{
+        
+        
+    try{     
+         const token = req.header('auth-token'); 
+          const token_id = jwt.verify(token,"sign").staffID;
+        
+          let output="nothing";   
+          if(token_id.substring(0,2).localeCompare("hr") == 0){
+              {output = await HRmembers.find({ccid:token_id});}
+          }  
+          else
+          return res.status(400).json({msg:"You cannot do that you are not HR"});
+             if(output=="nothing")
+         return res.status(400).json({msg:"You cannot do that you are not HR"});
+         
+         
+        let{staffid,rec}=req.body; 
+        const filter3 = {"id":staffid};
+        if(staffid.substring(0,2).localeCompare("hr")==0){
+        let xx=await HRModel.findOne(filter3)
+       xx.attendanceRecord.push(rec);
+       res.send(xx.attendanceRecord);
+       await xx.save(); 
+        }
+        else{
+            let xx=await AcademicMemberModel.findOne(filter3)
+            xx.attendanceRecord.push(rec);
+            res.send(xx.attendanceRecord);
+            await xx.save(); 
+        }
+
+    
+    
+    }
+        catch (error) {
+                return res.status(500).json({error:error.message})
+        }
+         
+});
+
+router.route('/viewattandence').get(auth,async(req,res)=>{
+        
+        
+    try{     
+         const token = req.header('auth-token'); 
+          const token_id = jwt.verify(token,"sign").staffID;
+        
+          let output="nothing";   
+          if(token_id.substring(0,2).localeCompare("hr") == 0){
+              {output = await HRmembers.find({ccid:token_id});}
+          }  
+          else
+          return res.status(400).json({msg:"You cannot do that you are not HR"});
+             if(output=="nothing")
+         return res.status(400).json({msg:"You cannot do that you are not HR"});
+         
+         
+         let{staffid}=req.body; 
+         const filter3 = {"id":staffid};
+         if(staffid.substring(0,2).localeCompare("hr")==0){
+         let xx=await HRModel.findOne(filter3)
+        res.send(xx.attendanceRecord);
+         }
+         else{
+            let xx=await AcademicMemberModel.findOne(filter3)
+            res.send(xx.attendanceRecord);    
+         }
+
+        
+    }
+        catch (error) {
+                return res.status(500).json({error:error.message})
+        }
+         
+});
+
+
+
+router.route('/updateSalary').get(auth,async(req,res)=>{
+        
+        
+    try{     
+         const token = req.header('auth-token'); 
+          const token_id = jwt.verify(token,"sign").staffID;
+        
+          let output="nothing";   
+          if(token_id.substring(0,2).localeCompare("hr") == 0){
+              {output = await HRmembers.find({ccid:token_id});}
+          }  
+          else
+          return res.status(400).json({msg:"You cannot do that you are not HR"});
+             if(output=="nothing")
+         return res.status(400).json({msg:"You cannot do that you are not HR"});
+        
+        let{id,salary1}=req.body; 
+        const filter3 = {"id":id};
+        
+        if(id.substring(0,2).localeCompare("hr")==0){
+        let crs=await HRModel.findOne(filter3);
+        console.log(crs);
+        crs.salary=salary1;
+        const result=   await crs.save();   
+        res.send(result);    
+    }
+        else{
+            let crs=await AcademicMemberModel.findOne(filter3);
+            crs.salary=salary1;
+         const result=   await crs.save();   
+        res.send(result);
+        }
+
+    }
+    catch (error) {
+        return res.status(500).json({error:error.message})
+}
+ 
+
+     
+});
 
 
 module.exports = router;

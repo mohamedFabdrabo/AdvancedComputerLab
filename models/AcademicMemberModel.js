@@ -16,12 +16,12 @@ const AM=mongoose.Schema({
     name: String,
     gender:String,
     email:{type:String,required:true,unique:true,sparse:true},
-    id:{type:String,required:true,unique:true,sparse:true},
+    id:{type:String,unique:true,sparse:true},
     salary:Number,
     password:{type:String,required:true,minlength:5},
    officeLocation:{type:Schema.Types.ObjectId ,ref:"location"},
     attendanceRecord:{type:Schema.Types.ObjectId ,ref:"attendanceSchema"},    
-    role: String,
+    role: {type:String,required:true},
     count1:Number,
 
     leaveBalance: Number,  
@@ -35,6 +35,6 @@ const AM=mongoose.Schema({
 
  
 });
-AM.plugin(autoIncrement.plugin, {model:"AM",field: 'count1'});
+AM.plugin(autoIncrement.plugin, {model:"AM",field: 'count1',startAt: 1});
 
 module.exports=mongoose.model("AM",AM);
