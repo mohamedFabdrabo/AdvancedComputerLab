@@ -848,10 +848,11 @@ router.route('/viewattandence').get(auth,async(req,res)=>{
          
          
          let{id}=req.body; 
-         const filter3 = {"id":id};
+         const filter3 = {"member_id":id};
          if(id.substring(0,2).localeCompare("hr")==0){
-         let xx=await HRModel.findOne(filter3)
-        res.send(xx.attendanceRecord);
+         console.log(id);
+            let xx=await HRModel.findOne(filter3)
+            console.log(xx);
          }
          else{
             let xx=await AcademicMemberModel.findOne(filter3)
