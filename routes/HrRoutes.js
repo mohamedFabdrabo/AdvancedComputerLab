@@ -19,15 +19,17 @@ const { mquery } = require('mongoose');
 const { required } = require('joi');
 const Joi = require('joi'); 
 
-const {addCourseValidation} =require('../validation/HrRoutesValidation');
+
+
+const {addCourseValidation,addLocationValidation,deleteLocationValidation,af,af1,dp,dp1,dp2,dp3,dp4,dp5,dp6,dp7,dp8,dp9,dp10} =require('../validation/HrRoutesValidation');
 const HRModel = require('../models/HRModel');
 const AcademicMemberModel = require('../models/AcademicMemberModel');
 const AttendanceRecords = require('../models/AttendanceRecords');
-const e = require('express');
 const router = express.Router();
 
 const auth=(req,res,next)=>{
     try {
+        
         const token=req.header('auth-token');
         if(!token){
             return res.status(401).json({msg:"byo byo authority"});
@@ -50,10 +52,13 @@ const auth=(req,res,next)=>{
 
 router.route('/addLocation').post(auth,async(req,res)=>{
     try {
-        const {error1}=addLocationValidation(req.body);
-        if(error1){
-            return res.status(400).json(error1.details[0].message);
+        const {error}=await addLocationValidation(req.body);
+        
+        if(error){
+           
+            return res.status(400).json(error.details[0].message);
         }
+        
        const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
         let output="nothing";   
@@ -84,8 +89,13 @@ router.route('/addLocation').post(auth,async(req,res)=>{
 
 
 router.route('/delLocation').delete(auth,async(req,res)=>{
-    try {
-       console.log("are you gay")
+        try {
+            const {error}=await deleteLocationValidation(req.body);
+            
+            if(error){
+               
+                return res.status(400).json(error.details[0].message);
+            }
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
          let {nam}=req.body;
@@ -100,9 +110,7 @@ router.route('/delLocation').delete(auth,async(req,res)=>{
         if(typeof nam!='string'){
             return res.status(403).json({msg:"plz enter types correclty "});   
            }
-        console.log("fuck you")
         const deleted=await locations.findOneAndDelete({"name": nam});
-        console.log("are you idiot")
        res.json(deleted);
     }
      catch (error) {
@@ -112,6 +120,12 @@ router.route('/delLocation').delete(auth,async(req,res)=>{
 });
 router.route('/updateLocation').get(auth,async(req,res)=>{
     try {
+        const {error}=await addLocationValidation(req.body);
+        
+        if(error){
+           
+            return res.status(400).json(error.details[0].message);
+        }
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
          let {nam,cap,typ,occ}=req.body;
@@ -138,7 +152,6 @@ router.route('/updateLocation').get(auth,async(req,res)=>{
          
        let result=await locations.findOneAndUpdate(filter,update,{new: true});
           res.send(result);
-          console.log("fuck you as well")
     }
      catch (error) {
         return  res.status(500).json({error:error.message})
@@ -146,7 +159,14 @@ router.route('/updateLocation').get(auth,async(req,res)=>{
 });
 router.route('/addFaculty').post(auth,async(req,res)=>{
     try {
-      console.log("ya rab");
+        const {error}=await af(req.body);
+        
+        if(error){
+           
+            return res.status(400).json(error.details[0].message);
+        }
+
+        console.log("ya rab");
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
@@ -175,7 +195,14 @@ router.route('/addFaculty').post(auth,async(req,res)=>{
 });
 
 router.route('/updateFaculty').get(auth,async(req,res)=>{
-    try {
+       try {
+            const {error}=await af1(req.body);
+            
+            if(error){
+               
+                return res.status(400).json(error.details[0].message);
+            }
+    
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
@@ -210,6 +237,13 @@ router.route('/updateFaculty').get(auth,async(req,res)=>{
 
 router.route('/delFaculty').delete(auth,async(req,res)=>{
     try {
+        const {error}=await deleteLocationValidation(req.body);
+            
+        if(error){
+           
+            return res.status(400).json(error.details[0].message);
+        }
+    
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
          let {nam}=req.body;
@@ -235,6 +269,12 @@ router.route('/delFaculty').delete(auth,async(req,res)=>{
 
 router.route('/addDepart').post(auth,async(req,res)=>{
     try {
+            const {error}=await dp(req.body);
+                
+            if(error){
+               
+                return res.status(400).json(error.details[0].message);
+            }
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
@@ -281,7 +321,12 @@ router.route('/updateDepart').get(auth,async(req,res)=>{
     try {
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
-       
+         const {error}=await dp1(req.body);
+                
+         if(error){
+            
+             return res.status(400).json(error.details[0].message);
+         }
          let output="nothing";   
          if(token_id.substring(0,2).localeCompare("hr") == 0){
              {output = await HRmembers.find({id:token_id});}
@@ -307,6 +352,13 @@ router.route('/updateDepart').get(auth,async(req,res)=>{
 
 router.route('/delDepart').delete(auth,async(req,res)=>{
     try {
+
+        const {error}=await deleteLocationValidation(req.body);
+            
+        if(error){
+           
+            return res.status(400).json(error.details[0].message);
+        }
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
@@ -337,21 +389,17 @@ router.route('/delDepart').delete(auth,async(req,res)=>{
      catch (error) {
      return   res.status(500).json({error:error.message})
     }
-});
+}); 
 
 router.route('/addCourse').post(auth,async(req,res)=>{
     try {
-       
-        const schema=Joi.object({
-
-            depname:Joi.string().required(),
-            nam:Joi.string().required(),
-            id:Joi.string().required()
-        });
         
-        const{error1}= schema.validate(req.body);
-        if(error1){
-            return res.status(400).json(error1.details[0].message);
+        const {error}=await addCourseValidation(req.body);
+        
+        if(error){
+           
+            return res.status(400).json(error.details[0].message);
+         
         }
         
 
@@ -368,6 +416,8 @@ router.route('/addCourse').post(auth,async(req,res)=>{
         return res.status(400).json({msg:"You cannot do that you are not HR"});
        
         let{depname,nam,id}=req.body;  
+       
+       
         const filter = {"name":depname};
       const dep=await DepartmentModel.findOne(filter)
       console.log(dep);
@@ -388,10 +438,10 @@ return res.status(500).json({error:error.message})
 
 router.route('/updateCourse').get(auth,async(req,res)=>{
     try {
-     /*   const {error}=updateCourseValidation(req.body);
+      const {error}=dp2(req.body);
         if(error){
             return res.status(400).json(error.details[0].message);
-        }*/
+        }
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
@@ -422,6 +472,11 @@ router.route('/updateCourse').get(auth,async(req,res)=>{
 
 router.route('/delCourse').delete(auth,async(req,res)=>{
     try {
+        const {error}=dp3(req.body);
+        if(error){
+            return res.status(400).json(error.details[0].message);
+        }
+       
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
@@ -458,7 +513,10 @@ router.route('/delCourse').delete(auth,async(req,res)=>{
 });
 
 router.route('/registerMem').post(auth,async(req,res)=>{
-        
+    const {error}=dp4(req.body);
+    if(error){
+        return res.status(400).json(error.details[0].message);
+    }
         
    try{     
         const token = req.header('auth-token'); 
@@ -535,7 +593,11 @@ else{
 
 
 router.route('/updateMem').get(auth,async(req,res)=>{
-        
+    const {error}=dp5(req.body);
+    if(error){
+        return res.status(400).json(error.details[0].message);
+    }
+
         
     try{     
          const token = req.header('auth-token'); 
@@ -652,8 +714,11 @@ router.route('/updateMem').get(auth,async(req,res)=>{
 
 
 router.route('/delMem').delete(auth,async(req,res)=>{
-        
-        
+    const {error}=dp6(req.body);
+    if(error){
+        return res.status(400).json(error.details[0].message);
+    }
+ 
     try{     
          const token = req.header('auth-token'); 
           const token_id = jwt.verify(token,"sign").staffID;
@@ -717,7 +782,11 @@ router.route('/delMem').delete(auth,async(req,res)=>{
 router.route('/addsignup').post(auth,async(req,res)=>{
         
         
-    try{     
+    try{    
+        const {error}=dp7(req.body);
+    if(error){
+        return res.status(400).json(error.details[0].message);
+    } 
          const token = req.header('auth-token'); 
           const token_id = jwt.verify(token,"sign").staffID;
         
@@ -759,7 +828,13 @@ router.route('/viewattandence').get(auth,async(req,res)=>{
         
         
     try{     
-         const token = req.header('auth-token'); 
+      
+         
+        const {error}=dp6(req.body);
+    if(error){
+        return res.status(400).json(error.details[0].message);
+    } 
+        const token = req.header('auth-token'); 
           const token_id = jwt.verify(token,"sign").staffID;
         
           let output="nothing";   
@@ -772,9 +847,9 @@ router.route('/viewattandence').get(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
          
          
-         let{staffid}=req.body; 
-         const filter3 = {"id":staffid};
-         if(staffid.substring(0,2).localeCompare("hr")==0){
+         let{id}=req.body; 
+         const filter3 = {"id":id};
+         if(id.substring(0,2).localeCompare("hr")==0){
          let xx=await HRModel.findOne(filter3)
         res.send(xx.attendanceRecord);
          }
