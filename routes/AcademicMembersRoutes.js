@@ -157,7 +157,7 @@ router.route('/ChangeDayoffRequest').post(auth,async(req,res)=>{
             sender:member._id,
             receiver:[],//HOD._id,
             state:'Pending',
-            type:'Change-Dayoff',
+            type:'dayOffChange',
             newDayoff: newDay,
             senderComment:req.body.senderComment
         });

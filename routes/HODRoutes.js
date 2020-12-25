@@ -482,22 +482,25 @@ router.route('/courseCoverage/:name').get(auth, async (req, res) => {
         }
         const depname = user.department;
         const mydepm = await Departments.findOne({ name: depname });
-        var result;
+        var mycourse; var result; var found = false;
         const mycourses = mydepm.courses;
         mycourses.forEach(async (element, index, arr) => {
-            const mycourse = await courses.findOne({ _id: element });
-            if (mycourse.name == req.params.name) {
-                console.log(mycourse.courseCoverage, mycourse)
-                result = mycourse.courseCoverage;
-                if (!mycourse.instructors.includes(user._id) && user.role == "Instructor")
+            const course = await courses.findOne({ _id: element });
+            if (course.name == req.params.name) {
+                mycourse = course;
+                found = true;
+                result = course.courseCoverage;
+
+
+                if (found & !mycourse.instructors.includes(user._id) && user.role == "Instructor")
                     return res.json("your are not an instructor of this course")
-                else
-                    return res.json(req.params.name + " : " + mycourse.courseCoverage);
             }
-            else
-                if (index == arr.length - 1)
+                if (index == arr.length - 1 && !found)
                     return res.json("please enter a valid course name");
+                    else        return res.json(req.params.name + " : " + result);
+
         });
+
     }
     catch (error) {
         return res.status(500).json({ error: error.message })
@@ -517,7 +520,7 @@ router.route('/viewAssignments/:name').get(auth, async (req, res) => {
         else {
             const depname = user.department;
             const mydepm = await Departments.findOne({ name: depname });
-            let mycourse;
+            let mycourse; var view = new Array();
             const mycourses = mydepm.courses;
             mycourses.forEach(async (element, index, arr) => {
                 const course = await courses.findOne({ _id: element });
@@ -525,8 +528,15 @@ router.route('/viewAssignments/:name').get(auth, async (req, res) => {
                     mycourse = course;
                     if (!mycourse.instructors.includes(user._id) && user.role == "Instructor")
                         return res.json("your are not an instructor of this course")
-                    else
-                        return res.json(mycourse.slots);
+                    else {
+                        mycourse.slots.forEach(async (element, index, arr) => {
+                            const myslot = await slot.findOne({ _id: element })
+                            view.push(myslot);
+                            if (index == arr.length - 1)
+                                return res.json(view);
+
+                        });
+                    }
                 }
                 else
                     if (index == arr.length - 1)
@@ -575,10 +585,10 @@ router.route('/assignSlot/:id/:course/:sid').put(auth, async (req, res) => {
             return res.json("enter a valid slot id")
         if (!mycourse.slots.includes(myslot._id))
             return res.json("this slot is not in this course")
-
+        console
         if (mymember.schedule.includes(myslot))
             return res.json("already assigned")
-        myslot.member = mymember;
+        myslot.instructor = mymember._id;
         mymember.schedule.push(myslot._id);
         await myslot.save();
         await mymember.save();
@@ -628,7 +638,7 @@ router.route('/updateSlotAssignment/:id/:course/:sid').put(auth, async (req, res
         if (!oldmember)
             return res.json("slot is not assigned to any staff member")
         removeA(oldmember.schedule, myslot._id);
-        myslot.member = mymember;
+        myslot.instructor = mymember;
         mymember.schedule.push(myslot);
         myslot.save();
         await mymember.save();
@@ -664,12 +674,12 @@ router.route('/deleteSlotAssignment/:course/:sid').put(auth, async (req, res) =>
         const myslot = await slot.findOne({ sid: req.params.sid })
         if (!myslot)
             return res.json("enter a valid slot id");
-        const mymember = myslot.member;
+        const mymember = await AcademicMembers.findOne({ _id: myslot.instructor });
+
         if (!mymember)
             return res.json("slot is not assigned to any staff member")
-        myslot.member = null;
-        function x() { var temp = myslot._id }
-        x().then(r => { removeA(mymember.schedule, temp) });
+        myslot.instructor = null;
+        removeA(mymember.schedule, myslot._id);
 
         await myslot.save();
         await mymember.save();

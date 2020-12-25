@@ -9,8 +9,7 @@ const HR=mongoose.Schema({
     leaveBalance: Number,
     password:{type:String,required:true,minlength:5},
     officeLocation:{type:Schema.Types.ObjectId ,ref:"location"},
-    attendanceRecord:[{   time : {type : Date}, signIn : {type : Boolean} }]      
-});
+    attendanceRecord:{type:Schema.Types.ObjectId ,ref:"attendanceSchema"},});
 module.exports=mongoose.model("HR",HR);
 
 /*const leaves = mongoose.Schema({

@@ -5,7 +5,6 @@ const Schema   = mongoose.Schema ;
 const counter = require('./counter');
 
 const slot=mongoose.Schema({
-    member:{type:Schema.Types.ObjectId ,ref:"AM"},
     course: {type:Schema.Types.ObjectId ,ref:"CO"},
     sid: Number,
     day:String,
