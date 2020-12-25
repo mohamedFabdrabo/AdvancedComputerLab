@@ -466,7 +466,7 @@ router.route('/registerMem').post(auth,async(req,res)=>{
         let{gender,name,email,salary,officeLocation,role,dayoff,department}=req.body; 
       const loc=await  locations.findOne(officeLocation);
       loc.occupation=1;
-   console.log(AcademicMembers.count1)
+   console.log(AcademicMembers.AM)
      // console.log(loc);
       if(loc.occupation==loc.capacity){
         return res.status(400).json({msg:"Max Capacity in this room"}); 
