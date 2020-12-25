@@ -14,7 +14,7 @@ autoIncrement.initialize(connection);
 const HR=mongoose.Schema({
     name: String,
     email:{type:String,required:true,unique:true,sparse:true},
-    id:{type:String,unique:true,sparse:true},
+    member_id:{type:String,required:true,unique:true,sparse:true},
     salary:Number,
     leaveBalance: Number,
     gender:String,
@@ -24,11 +24,7 @@ const HR=mongoose.Schema({
    
     password:{type:String,required:true,minlength:5},
     officeLocation:{type:Schema.Types.ObjectId ,ref:"location"},
-    attendanceRecord:[{   time : {type : Date}, signIn : {type : Boolean} }] ,
-  
-});
-HR.plugin(autoIncrement.plugin, {model:"HR",field: 'count1',startAt: 1});
-
+    attendanceRecord:{type:Schema.Types.ObjectId ,ref:"attendanceSchema"},});
 module.exports=mongoose.model("HR",HR);
 
 /*const leaves = mongoose.Schema({
