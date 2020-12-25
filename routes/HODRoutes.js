@@ -490,14 +490,13 @@ router.route('/courseCoverage/:name').get(auth, async (req, res) => {
                 mycourse = course;
                 found = true;
                 result = course.courseCoverage;
-
-
+                console.log(course.courseCoverage,course)
                 if (found & !mycourse.instructors.includes(user._id) && user.role == "Instructor")
                     return res.json("your are not an instructor of this course")
             }
-                if (index == arr.length - 1 && !found)
-                    return res.json("please enter a valid course name");
-                    else        return res.json(req.params.name + " : " + result);
+            if (index == arr.length - 1 && !found)
+                return res.json("please enter a valid course name");
+            else return res.json(req.params.name + " : " + result);
 
         });
 
