@@ -14,13 +14,13 @@ const AM=mongoose.Schema({
     role: String,
     leaveBalance: Number,  
     dayoff:String,
-    courses:[[{type:Schema.Types.ObjectId ,ref:"CO"}]],
+    courses:[{type:Schema.Types.ObjectId ,ref:"CO"}],
     faculty:{type:String},
     department:{type:String},
     schedule:[slot],
     leaves:[{ day:Date,
-        LeaveType:{enum : ['Accidental','Maternity','Annual','Compensation','Sick']}}]
-
+        LeaveType:{enum : ['Accidental','Maternity','Annual','Compensation','Sick']}}],
+    accidental:{type:Number,default:6}
  
 });
 

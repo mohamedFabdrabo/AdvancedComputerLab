@@ -56,7 +56,7 @@ router.route('/login').post(async(req,res)=>{
         }
         const jwt_pass="sign";
 
-        const token=jwt.sign({id:alreadyExist._id,staffID:alreadyExist.id},jwt_pass);
+        const token=jwt.sign({id:alreadyExist._id,staffID:alreadyExist.member_id},jwt_pass);
         res.json({
                 token,user:{
                 id:alreadyExist._id,
