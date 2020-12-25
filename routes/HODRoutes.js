@@ -1,5 +1,5 @@
 const express = require('express');
-const jwt=require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const courses = require('../models/course');
 const AcademicMembers = require('../models/AcademicMemberModel');
 const Departments = require('../models/DepartmentModel');
@@ -467,7 +467,7 @@ router.route('/viewAssignments/:name').get(auth, async (req, res) => {
         else {
             const depname = user.department;
             const mydepm = await Departments.findOne({ name: depname });
-            let  mycourse;
+            let mycourse;
             const mycourses = mydepm.courses;
             mycourses.forEach(async (element, index, arr) => {
                 const course = await courses.findOne({ _id: element });
@@ -492,7 +492,190 @@ router.route('/viewAssignments/:name').get(auth, async (req, res) => {
 //-------------------------------------------------------------------------------------------------------------------------
 //instructor functionalties (1, 2, 3 are repeated at HOD) 1 is 7, 2 is 8, 3 is 2 
 
-///functionality 8 assign an academic member to be a course coordinator  
+///functionality 4 assign  an academic member to an unassigned slots in course(s) he/she is assigned to.
+router.route('/assignSlot/:name/:course/:sid').put(auth, async (req, res) => {
+    try {
+        const token = req.header('auth-token');
+        const token_id = jwt.verify(token, "sign").staffID;
+        const user = await AcademicMembers.findOne({ id: token_id });
+        if (user.role != "Instructor") {
+            return res.json("access denied")
+        }
+        var mycourse;
+        let found = false;
+        user.courses.forEach(async (element, index, arr) => {
+            const course = await courses.findOne({ _id: element })
+            if (course.instructors.includes(user._id) && course.name == req.params.course) {
+                mycourse = course;
+                found = true;
+            }
+            if (index == arr.length - 1 && found == false)
+                return res.json("please enter a valid course name ")
+
+        });
+        const mymember = await AcademicMembers.findOne({ name: req.params.name });
+        if (!mymember)
+            return res.json("no staff member with this name")
+        if (!mycourse.academicMembers.includes(mymember._id))
+            return res.json("this member does not teach this course,please add them first")
+        const myslot = await slot.findOne({ sid: req.params.sid })
+        if (!myslot)
+            return res.json("enter a valid slot id")
+        myslot.member = mymember;
+        mymember.schedule.push(myslot);
+        myslot.save();
+        mymember.save();
+        return res, json("assigned succefully");
+
+
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+});
+
+
+
+///functionality 5 Update/delete assignment of academic member in course(s) he/she is assigned to.
+
+router.route('/updateSlotAssignment/:name/:course/:sid').put(auth, async (req, res) => {
+    try {
+        const token = req.header('auth-token');
+        const token_id = jwt.verify(token, "sign").staffID;
+        const user = await AcademicMembers.findOne({ id: token_id });
+        if (user.role != "Instructor") {
+            return res.json("access denied")
+        }
+        var mycourse;
+        let found = false;
+        user.courses.forEach(async (element, index, arr) => {
+            const course = await courses.findOne({ _id: element })
+            if (course.instructors.includes(user._id) && course.name == req.params.course) {
+                mycourse = course;
+                found = true;
+            }
+            if (index == arr.length - 1 && found == false)
+                return res.json("please enter a valid course name ")
+
+        });
+        const mymember = await AcademicMembers.findOne({ name: req.params.name });
+        if (!mymember)
+            return res.json("no staff member with this name")
+        if (!mycourse.academicMembers.includes(mymember._id))
+            return res.json("this member does not teach this course,please add them first")
+        const myslot = await slot.findOne({ sid: req.params.sid })
+        if (!myslot)
+            return res.json("enter a valid slot id")
+        const oldmember = myslot.member;
+        if (!oldmember)
+            return res.json("slot is not assigned to any staff member")
+        removeA(oldmember.schedule, myslot);
+        myslot.member = mymember;
+        mymember.schedule.push(myslot);
+        myslot.save();
+        mymember.save();
+        oldmember.save();
+        return res, json("updated succefully");
+
+
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+});
+router.route('/deleteSlotAssignment/:course/:sid').put(auth, async (req, res) => {
+    try {
+        const token = req.header('auth-token');
+        const token_id = jwt.verify(token, "sign").staffID;
+        const user = await AcademicMembers.findOne({ id: token_id });
+        if (user.role != "Instructor") {
+            return res.json("access denied")
+        }
+        var mycourse;
+        let found = false;
+        user.courses.forEach(async (element, index, arr) => {
+            const course = await courses.findOne({ _id: element })
+            if (course.instructors.includes(user._id) && course.name == req.params.course) {
+                mycourse = course;
+                found = true;
+            }
+            if (index == arr.length - 1 && found == false)
+                return res.json("please enter a valid course name ")
+
+        });
+
+        const myslot = await slot.findOne({ sid: req.params.sid })
+        if (!myslot)
+            return res.json("enter a valid slot id");
+        const mymember = myslot.member;
+        if (!mymember)
+            return res.json("slot is not assigned to any staff member")
+        myslot.member = null;
+        removeA(mymember.schedule, myslot);
+        myslot.save();
+        mymember.save();
+        return res, json("Assignment deleted succefully");
+
+
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+});
+
+/// functionality 6 Remove an assigned academic member in course(s) he/she is assigned to.
+
+router.route('/removefromCourse/:name/:course').put(auth, async (req, res) => {
+    try {
+        const token = req.header('auth-token');
+        const token_id = jwt.verify(token, "sign").staffID;
+        const user = await AcademicMembers.findOne({ id: token_id });
+        if (user.role != "Instructor") {
+            return res.json("access denied")
+        }
+        var mycourse;
+        let found = false;
+        user.courses.forEach(async (element, index, arr) => {
+            const course = await courses.findOne({ _id: element })
+            if (course.instructors.includes(user._id) && course.name == req.params.course) {
+                mycourse = course;
+                found = true;
+            }
+            if (index == arr.length - 1 && found == false)
+                return res.json("please enter a valid course name ")
+
+        });
+        const mymember = await AcademicMembers.findOne({ name: req.params.name })
+        if (!mymember)
+            return res.json("no staff member with this name")
+        mycourse.academicMembers.forEach(async (element, index, arr) => {
+
+            if (mymember._id == element) {
+                mycourse = course;
+                found = true;
+            }
+            if (index == arr.length - 1 && found == false)
+                return res.json("this member is not in this courrse ")
+
+        });
+        mymember.schedule.forEach(async (element, index, arr) => {
+            const myslot = await slot.findOne({ _id: element })
+            if (myslot.course == mycourse._id) {
+                myslot.member = null;
+                removeA(mymember.schedule, myslot)
+                myslot.save();
+            }
+
+        });
+        removeA(mymember.courses, mycourse)
+        removeA(mycourse.AcademicMembers, mymember)
+        mycourse.save();
+        mymember.save();
+        return res, json("removed successfully");
+
+
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+});
+///functionality 7 assign an academic member to be a course coordinator  
 router.route('/assignCoordinator/:name:/course').put(auth, async (req, res) => {
     try {
 
@@ -532,7 +715,6 @@ router.route('/assignCoordinator/:name:/course').put(auth, async (req, res) => {
                         mycoordinator.save();
                         mycourse.save();
                         res.json("assigned successfully");
-                        console.log(mycoordinator, mycourse);
                     }
                 }
             }
@@ -543,23 +725,50 @@ router.route('/assignCoordinator/:name:/course').put(auth, async (req, res) => {
     }
 });
 
+//extra functionality : add members to course 
+router.route('/assignMember/:name:/course').put(auth, async (req, res) => {
+    try {
+        const token = req.header('auth-token');
+        const token_id = jwt.verify(token, "sign").staffID;
+        const user = await AcademicMembers.findOne({ id: token_id });
+        if (user.role != "Instructor") {
+            return res.json("access denied")
+        }
+        var mycourse;
+        let found = false;
+        user.courses.forEach(async (element, index, arr) => {
+            const course = await courses.findOne({ _id: element })
+            if (course.instructors.includes(user._id) && course.name == req.params.course) {
+                mycourse = course;
+                found = true;
+            }
+            if (index == arr.length - 1 && found == false)
+                return res.json("please enter a valid course name ")
+
+        });
+        const mymember = await AcademicMembers.findOne({ name: req.params.name });
+        if (!mymember)
+            return res.json("no staff member with this name")
+        if (mymember.department != user.department)
+            return res.json("this staff member is not in your department")
+        if (mycourse.academicMembers.includes(mymember._id))
+            res.json("already exist");
+        else {
+            mycourse.coordinator = mymember._id;
+            mycourse.academicMembers.push(mymember);
+            mymember.courses.push(mycourse);
+            mymember.save();
+            mycourse.save();
+            return res.json("added successfully");
+        }
+    }
+
+    catch (error) {
+        res.json({ message: error })
+    }
+});
 
 
-
-
-
-/*
- const loginSchema = Joi.object({
-            email : Joi.string().email().required(),
-            password : Joi.string().required()
-        })
-        const result = loginSchema.validate(req.body);
-        if(result)
-        {
-            return res.json(result.error.details);
-        }else{
-            اكتب هنا .. كدا هو عدى تمام
-        } */
 
 
 //helper method
