@@ -19,6 +19,7 @@ const { mquery } = require('mongoose');
 const { required } = require('joi');
 const {addCourseValidation} =require('../validation/HrRoutesValidation');
 const HRModel = require('../models/HRModel');
+const AcademicMemberModel = require('../models/AcademicMemberModel');
 const router = express.Router();
 
 const auth=(req,res,next)=>{
@@ -451,6 +452,7 @@ router.route('/registerMem').post(auth,async(req,res)=>{
         if(error1){
             return res.status(400).json(error1.details[0].message);
         }
+        
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
@@ -462,12 +464,17 @@ router.route('/registerMem').post(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-   
+     
+        AM.findByIdAndUpdateAsync({count1: 'entityId'}, {$inc: { seq: 1} }, {new: true, upsert: true}).then(function(count) {
+            console.log("...count: "+JSON.stringify(count));
+            doc.sort = count.seq;
+            next();
+        })
+
         let{gender,name,email,salary,officeLocation,role,dayoff,department}=req.body; 
       const loc=await  locations.findOne(officeLocation);
       loc.occupation=1;
-   console.log(AcademicMembers.AM)
-     // console.log(loc);
+    // console.log(loc);
       if(loc.occupation==loc.capacity){
         return res.status(400).json({msg:"Max Capacity in this room"}); 
       }
@@ -495,12 +502,11 @@ else{
       const dep=await  Departments.findOne(filter);
       console.log(loc._id);
       const id1="AC-9999";
-      const crs = await new AcademicMembers({"id":id1,"gender":gender,"name":name,"email":email,
+      const crs = await new AcademicMembers({"gender":gender,"name":name,"email":email,
     "salary":salary,"password":123456,"officeLocation":loc._id,"role":role,
     "dayoff":dayoff,"department":department
     })
-    
-     // console.log(dep.HOD);
+    console.log(AcademicMemberModel.count1) ;  
       if(role=="HOD")
     dep.HOD=crs._id;
   // console.log(crs);

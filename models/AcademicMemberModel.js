@@ -3,8 +3,14 @@ const Schema   = mongoose.Schema ;
 //const mongoose = require('mongoose')
 autoIncrement = require('mongoose-auto-increment');
 
-const connection =  mongoose.createConnection('mongodb+srv://mfathy19:mfathy19@cluster0.mfjyt.mongodb.net/f1?retryWrites=true&w=majority');
-const AutoIncrement = AutoIncrementFactory(connection);
+const connection =  mongoose.createConnection('mongodb+srv://mfathy19:mfathy19@cluster0.mfjyt.mongodb.net/f1?retryWrites=true&w=majority'
+,{
+    useNewUrlParser:true,
+    useUnifiedTopology:true
+}
+);
+autoIncrement.initialize(connection);
+
 const slot = require('./slot.js').schema;
 const AM=mongoose.Schema({
     name: String,
@@ -29,6 +35,6 @@ const AM=mongoose.Schema({
 
  
 });
-AM.plugin(autoIncrement.plugin, {model:"AcademicMemberModel",inc_field: 'count1'});
+AM.plugin(autoIncrement.plugin, {model:"AM",field: 'count1'});
 
 module.exports=mongoose.model("AM",AM);
