@@ -125,8 +125,8 @@ router.route('/AddSlot').post(auth,async(req,res)=>{
             return res.status(401).json({msg:"Sorry you are not course coordinator"});
         //console.log("SYSOSOS");    
         const newSlot = new slots({
-            course:req.body.course,
-            sid:req.body.sid,//id to be done
+            course:thisCourse._id,
+            sid:req.body.sid,
             day:req.body.day,
             timing:req.body.timing,
             type:req.body.type,

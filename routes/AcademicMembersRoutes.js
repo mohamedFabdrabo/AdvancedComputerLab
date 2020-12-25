@@ -57,7 +57,7 @@ router.route('/viewSchedule').get(auth,async(req,res)=>{
             const temp = await slots.findOne({_id:element._id});
             //console.log(temp);
             Theschedule.push(temp);
-            console.log(Theschedule);
+            //console.log(Theschedule);
         };
              
         //console.log(Theschedule);
@@ -76,7 +76,7 @@ router.route('/ViewReplacements').get(auth,async(req,res)=>{
         const token_id = jwt.verify(token,"sign").staffID;
         member = await AcademicMembers.findOne({member_id:token_id});
         const Replacements =await  requests.find({sender:member._id,type:'Replacement'});
-        res.send("The Replacement Requests : \n"+Replacement);
+        res.send(Replacements);
     } catch (error) {
         res.status(500).json({error:error.message})
     }
@@ -88,14 +88,14 @@ router.route('/SendReplacementRequest').post(auth,async(req,res)=>{// req.body.d
         const token_id = jwt.verify(token,"sign").staffID;
         member = await AcademicMembers.findOne({member_id:token_id});
         console.log(member);
-        const current_course = await courses.findById(member.courses[0]);
+        const current_course = await courses.findOne({_id:member.courses[0]});
         const course_members = current_course.academicMembers;//;       
-        console.log(course_members); 
+        //console.log(course_members); 
         const newRequest =new requests({
             rid:req.body.rid,
             sender:member._id,
             receiver:[],
-            senderComment:member._id,
+            senderComment:req.body.senderComment,
             state:'Pending',
             type:'Replacement',
             requested_day:req.body.day
@@ -121,7 +121,7 @@ router.route('/SendSlotLinkingRequest').post(auth,async(req,res)=>{// req.body {
         if(!slot_id)
             return res.status(401).json({msg:"invalid inputs"});
        const theslot = await slots.findOne({sid:slot_id});
-        const course = await courses.findById(theslot.course);// not needed
+        const course = await courses.findOne({_id:theslot.course});// not needed
         const coordinator = await course.coordinator;
         const tempID = new mongoose.Schema.Types.ObjectId(member._id);
         const newRequest =new requests({
@@ -146,7 +146,6 @@ router.route('/SendSlotLinkingRequest').post(auth,async(req,res)=>{// req.body {
     }
 });
 router.route('/ChangeDayoffRequest').post(auth,async(req,res)=>{
-    
     try {
         const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
@@ -160,7 +159,7 @@ router.route('/ChangeDayoffRequest').post(auth,async(req,res)=>{
             state:'Pending',
             type:'Change-Dayoff',
             newDayoff: newDay,
-            senderComment:req.body.reason
+            senderComment:req.body.senderComment
         });
         newRequest.receiver.push(HOD._id);
         await newRequest.save();
