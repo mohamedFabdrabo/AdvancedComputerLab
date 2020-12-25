@@ -1,5 +1,6 @@
 const express = require('express');
 const jwt=require('jsonwebtoken');
+const AcademicMemberModel = require('../models/AcademicMemberModel');
 const Departments = require('../models/DepartmentModel');
 const faculties = require('../models/facultyModel');
 const locations = require('../models/location');
@@ -56,17 +57,19 @@ router.route('/viewLocations').get(async(req,res)=>{
 router.route('/addFaculty').post(async(req,res)=>{
     try {
 
-        const dep =  new Departments({ "name": req.body.dname })
-         //const fac =  new faculties({  "name":req.body.fname });
-      //  const fac = faculties.find
-  //const fac=  await faculties.findOne({name:"pharmacy1"});
- //fac.departments=dep;
- //console.log(fac.departments);
-      // const savedFaculty= await Departments.findOne({ _id:fac.departments});
-        fac.departments.push(dep)
-        fac.save()
+      
+        const m =await AcademicMemberModel.find({member_id:"ac-15"})
+        const n =await AcademicMemberModel.find({member_id:"ac-25"})
+        const b =await AcademicMemberModel.find({member_id:"ac-27"})
+        const dep =new Departments({name:"bio"})
+        console.log(n)
+        dep.academicmem.push(b)
+        dep.academicmem.push(m)
+        dep.academicmem.push(n)
+        console.log(dep.academicmem)
+
         dep.save()
-        res.json("done");
+        res.json(dep);
         }
         
      catch (error) {
@@ -75,22 +78,9 @@ router.route('/addFaculty').post(async(req,res)=>{
 });
 router.route('/addDepartment').post(async(req,res)=>{
     try {
-          const dep = new Departments({
-            
-   
-    "name": "bio"
-    
-        })
-       const myfac= await faculties.findOne({"name":"pharmacy"});
-       const deps =myfac.departments;
-       //deps.push(dep);
-       
-       //deps.forEach((element,index,arr) => { });
 
-     // const savedFaculty= await faculties.updateOne({name:"pharmacy"},{ $set: { departments:dep } } );
-     // const saved= (await faculties.findOneAndDelete({name:"pharmacy"} )).save();
-     //console.log(savedFaculty);
-        res.json(myfac);
+
+
         }
         
      catch (error) {

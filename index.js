@@ -8,8 +8,7 @@ const connectionParams={
     useCreateIndex:true,
     useUnifiedTopology:true
 }
-const url="mongodb+srv://mfathy19:mfathy19@cluster0.mfjyt.mongodb.net/f1?retryWrites=true&w=majority";
-
+const url="mongodb+srv://mfathy19:mfathy19@cluster0.mfjyt.mongodb.net/fathytest?retryWrites=true&w=majority";
 
 mongoose.connect(url,connectionParams).then(()=>{
     console.log("OKKK");
