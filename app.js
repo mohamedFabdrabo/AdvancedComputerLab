@@ -7,9 +7,14 @@ const HODRoutes = require('./routes/HODRoutes');
 const AllAcademicsRoutes = require('./routes/AcademicMembersRoutes'); 
 const CourseCoordinatorRoutes = require('./routes/CourseCoordinatorRoutes'); 
 const counter = require('./models/counter');
+var cors = require("cors");
+
 const app=express();
+
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
+app.use(cors());
+
 app.use('/',AllStaffRoutes);
 app.use('/',HrRoutes);
 app.use('/',HODRoutes);
@@ -33,7 +38,7 @@ newC.save();
 }*/
 
 
-app.listen(3000);
+//app.listen(3001);
 
 module.exports=app;
 
