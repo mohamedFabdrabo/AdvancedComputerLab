@@ -171,7 +171,7 @@ router.route('/updateLocation').get(async(req,res)=>{
         return  res.status(500).json({error:error.message})
     }
 });
-router.route('/addFaculty').post(auth,async(req,res)=>{
+router.route('/addFaculty').post(async(req,res)=>{
     try {
         const {error}=await af(req.body);
         
@@ -193,12 +193,12 @@ router.route('/addFaculty').post(auth,async(req,res)=>{
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
       */
-      
         let{nam,department}=req.body;  
         const loc = new faculties(
               {name:nam,
                 departments:department
         })
+        console.log(nam);
         
        const savedFaculty=  await loc.save();
         res.json(savedFaculty);
@@ -208,16 +208,17 @@ router.route('/addFaculty').post(auth,async(req,res)=>{
     }
 });
 
-router.route('/updateFaculty').get(auth,async(req,res)=>{
+router.route('/updateFaculty').get(async(req,res)=>{
        try {
-            const {error}=await af1(req.body);
+           console.log("hi");
+            const {error}=await af1(req.query);
             
             if(error){
                
                 return res.status(400).json(error.details[0].message);
             }
     
-        const token = req.header('auth-token'); 
+      /*  const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
          let output="nothing";   
@@ -228,10 +229,12 @@ router.route('/updateFaculty').get(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-        let {nam,newname}=req.body;
+        */
+        let {nam,newname}=req.query;
         const filter = {"name":nam};
         
          const update = {"name":newname};
+         console.log(nam+" "+newname);
        console.log("be kind plz")
         let result1=await faculties.findOne(filter,{new: true});
    
@@ -249,18 +252,18 @@ router.route('/updateFaculty').get(auth,async(req,res)=>{
 });
 
 
-router.route('/delFaculty').delete(auth,async(req,res)=>{
+router.route('/delFaculty').delete(async(req,res)=>{
     try {
-        const {error}=await deleteLocationValidation(req.body);
+        console.log("hi");
+        const {error}=await deleteLocationValidation(req.query);
             
         if(error){
            
             return res.status(400).json(error.details[0].message);
         }
     
-        const token = req.header('auth-token'); 
+      /*  const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
-         let {nam}=req.body;
 
          let output="nothing";   
          if(token_id.substring(0,2).localeCompare("hr") == 0){
@@ -269,11 +272,18 @@ router.route('/delFaculty').delete(auth,async(req,res)=>{
         else{
         return res.status(400).json({msg:"You cannot do that you are not HR"});       
         }
+        
         if(typeof nam!='string'){
             return res.status(403).json({msg:"plz enter types correclty "});   
            }
+           */
+          let {nam}=req.query;
+console.log(nam)
         const deleted=await faculties.findOneAndDelete({"name": nam});
-       res.json(deleted);
+        if(deleted==null){
+            return res.status(400).json({msg:" already deleted"});
+        }
+        res.json(deleted);
     }
      catch (error) {
         return res.status(500).json({error:error.message})
@@ -281,15 +291,15 @@ router.route('/delFaculty').delete(auth,async(req,res)=>{
  
 });
 
-router.route('/addDepart').post(auth,async(req,res)=>{
+router.route('/addDepart').post(async(req,res)=>{
     try {
             const {error}=await dp(req.body);
                 
-            if(error){
+           if(error){
                
                 return res.status(400).json(error.details[0].message);
             }
-        const token = req.header('auth-token'); 
+        /*const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
          let output="nothing";   
@@ -300,7 +310,7 @@ router.route('/addDepart').post(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-      
+      */
       
         let{facname,nam}=req.body;  
 
@@ -331,17 +341,18 @@ router.route('/addDepart').post(auth,async(req,res)=>{
 
 
 
-router.route('/updateDepart').get(auth,async(req,res)=>{
+router.route('/updateDepart').get(async(req,res)=>{
     try {
-        const token = req.header('auth-token'); 
-         const token_id = jwt.verify(token,"sign").staffID;
-         const {error}=await dp1(req.body);
+       //  const token_id = jwt.verify(token,"sign").staffID;
+         const {error}=await dp1(req.query);
+     
+       //  const token = req.header('auth-token'); 
                 
          if(error){
             
              return res.status(400).json(error.details[0].message);
          }
-         let output="nothing";   
+     /*    let output="nothing";   
          if(token_id.substring(0,2).localeCompare("hr") == 0){
              {output = await HRmembers.find({id:token_id});}
          }  
@@ -349,14 +360,16 @@ router.route('/updateDepart').get(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-      
-        let{oldnam,newnam}=req.body;  
+      */
+        let{oldnam,newnam}=req.query;  
         const filter = {"name":oldnam};
         const update={"name":newnam}
         let cc=await DepartmentModel.findOneAndUpdate(filter,update,{new: true});
           console.log(cc);
-          res.send(cc);
-
+         res.send(cc);
+          if(!cc){
+            return res.status(400).json({msg:"Faculty doesn't exist"});
+          }
         
     }     
      catch (error) {
@@ -364,11 +377,11 @@ router.route('/updateDepart').get(auth,async(req,res)=>{
     }
 });
 
-router.route('/delDepart').delete(auth,async(req,res)=>{
+router.route('/delDepart').delete(async(req,res)=>{
     try {
 
-        const {error}=await deleteLocationValidation(req.body);
-            
+        const {error}=await deleteLocationValidation(req.query);
+          /*  
         if(error){
            
             return res.status(400).json(error.details[0].message);
@@ -384,7 +397,8 @@ router.route('/delDepart').delete(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-        let{nam}=req.body;
+        */
+        let{nam}=req.query;
         const filter = {"name":nam};
          
         const result=await (await DepartmentModel.findOne(filter))._id;
@@ -399,13 +413,16 @@ router.route('/delDepart').delete(auth,async(req,res)=>{
         console.log()
     
         res.send(rep);
+        if(!rep){
+            return res.status(400).json({msg:"Faculty doesn't exist"});
+        }
     }     
      catch (error) {
      return   res.status(500).json({error:error.message})
     }
 }); 
 
-router.route('/addCourse').post(auth,async(req,res)=>{
+router.route('/addCourse').post(async(req,res)=>{
     try {
         
         const {error}=await addCourseValidation(req.body);
@@ -415,7 +432,7 @@ router.route('/addCourse').post(auth,async(req,res)=>{
             return res.status(400).json(error.details[0].message);
          
         }
-        
+        /*
 
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
@@ -428,7 +445,7 @@ router.route('/addCourse').post(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-       
+       */
         let{depname,nam,id}=req.body;  
        
        
@@ -437,7 +454,9 @@ router.route('/addCourse').post(auth,async(req,res)=>{
       console.log(dep);
     
       const crs = await new courses({"name":nam,"cid":id})
-      
+      if(!crs){
+        return res.status(400).json({msg:"Course doesn't exist"});
+    }
     await dep.courses.push(crs);
      await dep.save();
      await crs.save();
