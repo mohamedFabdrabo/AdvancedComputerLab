@@ -50,15 +50,17 @@ const auth=(req,res,next)=>{
 }
 
 
-router.route('/addLocation').post(auth,async(req,res)=>{
+router.route('/addLocation').post(async(req,res)=>{
     try {
+        console.log("fuck you too")
+    
         const {error}=await addLocationValidation(req.body);
         
-        if(error){
+       if(error){
            
             return res.status(400).json(error.details[0].message);
         }
-        
+        /*
        const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
         let output="nothing";   
@@ -69,6 +71,8 @@ router.route('/addLocation').post(auth,async(req,res)=>{
        
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
+       */
+      
         let {nam,cap,typ,occ}=req.body;
         const loc = new locations(
               {name:nam,
@@ -76,12 +80,12 @@ router.route('/addLocation').post(auth,async(req,res)=>{
                 type:typ,
                 occupation:occ  
         })
-       
         const saveLocation= await loc.save();
         res.json(saveLocation);
         }
         
      catch (error) {
+         console.log("hi")
         return  res.status(500).json({error:error.message})
     }
  
