@@ -80,6 +80,7 @@ router.route('/addLocation').post(async(req,res)=>{
                 type:typ,
                 occupation:occ  
         })
+        console.log(nam+" "+cap+" "+typ+" "+occ);
         const saveLocation= await loc.save();
         res.json(saveLocation);
         }
@@ -92,17 +93,17 @@ router.route('/addLocation').post(async(req,res)=>{
 });
 
 
-router.route('/delLocation').delete(auth,async(req,res)=>{
+router.route('/delLocation').delete(async(req,res)=>{
         try {
-            const {error}=await deleteLocationValidation(req.body);
+            const {error}=await deleteLocationValidation(req.query);
             
             if(error){
                
                 return res.status(400).json(error.details[0].message);
             }
+            /*
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
-         let {nam}=req.body;
 
          let output="nothing";   
          if(token_id.substring(0,2).localeCompare("hr") == 0){
@@ -111,28 +112,33 @@ router.route('/delLocation').delete(auth,async(req,res)=>{
         else{
         return res.status(400).json({msg:"You cannot do that you are not HR"});       
         }
-        if(typeof nam!='string'){
-            return res.status(403).json({msg:"plz enter types correclty "});   
-           }
+        */
+       let {nam}=req.query;
+console.log(nam);
         const deleted=await locations.findOneAndDelete({"name": nam});
-       res.json(deleted);
+        console.log(deleted)
+      
+        if(deleted==null){
+            return res.status(400).json({msg:"location already deleted"});
+           }
+        res.json(deleted);
+      
     }
      catch (error) {
         return res.status(500).json({error:error.message})
     }
  
 });
-router.route('/updateLocation').get(auth,async(req,res)=>{
+router.route('/updateLocation').get(async(req,res)=>{
     try {
-        const {error}=await addLocationValidation(req.body);
+        const {error}=await addLocationValidation(req.query);
         
         if(error){
            
             return res.status(400).json(error.details[0].message);
         }
-        const token = req.header('auth-token'); 
+        /*const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
-         let {nam,cap,typ,occ}=req.body;
        
          let output="nothing";   
          if(token_id.substring(0,2).localeCompare("hr") == 0){
@@ -142,15 +148,19 @@ router.route('/updateLocation').get(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
+        */
+       let {nam,cap,typ,occ}=req.query;
+      
+        
         const filter = {"name":nam};
         const update = {"capacity":cap,"type":typ,"occuptation":occ};
-       console.log("be kind plz")
-       if(typ!=="office"&&typ!=="lab"&&typ!=="hall"&&typ!="tutorial"){
-       return res.status(400).json({msg:"only valid types are hall , tutorial , lab ,office"});       
-        }
-        let result1=await locations.findOne(filter,{new: true});
-        
-        if(result1==null){
+     let result1=await locations.findOne(filter,{new: true});
+         if(typ!=="office"&&typ!=="lab"&&typ!=="hall"&&typ!="tutorial"){
+       return res.status(400).json({msg:"only valid types are hall , tutorial , lab ,office"});    
+          }  
+     if(result1==null){
+            console.log("be kind plz")
+    
         return res.status(400).json({msg:"This location doesn't exist"});       
        }
          
@@ -170,7 +180,7 @@ router.route('/addFaculty').post(auth,async(req,res)=>{
             return res.status(400).json(error.details[0].message);
         }
 
-        console.log("ya rab");
+      /*  console.log("ya rab");
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
@@ -182,7 +192,7 @@ router.route('/addFaculty').post(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-      
+      */
       
         let{nam,department}=req.body;  
         const loc = new faculties(
