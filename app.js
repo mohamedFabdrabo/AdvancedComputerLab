@@ -7,14 +7,33 @@ const HODRoutes = require('./routes/HODRoutes');
 const AllAcademicsRoutes = require('./routes/AcademicMembersRoutes'); 
 const CourseCoordinatorRoutes = require('./routes/CourseCoordinatorRoutes'); 
 const counter = require('./models/counter');
+
+var cors = require("cors");
+const corsOptions={
+origin :
+[
+"http://localhost:5000",
+"http://localhost:3000",
+"http://127.0.0.1",
+],
+credentials : true,
+exposedHeaders:["set-cookie"],
+};
+
+credentials:true
+
+
 const app=express();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-app.use('/',AllStaffRoutes);
-app.use('/',HrRoutes);
-app.use('/',HODRoutes);
-app.use('/Academics',AllAcademicsRoutes);
-app.use('/coordinator',CourseCoordinatorRoutes);
+app.use('/',cors(corsOptions),AllStaffRoutes);
+app.use('/',cors(corsOptions),HrRoutes);
+app.use('/',cors(corsOptions),HODRoutes);
+app.use('/Academics',cors(corsOptions),AllAcademicsRoutes);
+app.use('/coordinator',cors(corsOptions),CourseCoordinatorRoutes);
+
+
+
 
 /*try{
 var newC = new counter({name:"rid"});
@@ -33,7 +52,7 @@ newC.save();
 }*/
 
 
-app.listen(3000);
+// app.listen(3000);
 
 module.exports=app;
 

@@ -51,10 +51,10 @@ router.route('/login').post(async(req,res)=>{
             return res.status(400).json({msg:"register first"});
             }
         }
-        const matched=await bcrypt.compare(password,alreadyExist.password)
-        if(!matched){
-            return res.status(400).json({msg:"wrong password"});
-        }
+        // const matched=await bcrypt.compare(password,alreadyExist.password)
+        // if(!matched){
+        //     return res.status(400).json({msg:"wrong password"});
+        // }
         const jwt_pass="sign";
 
         const token=jwt.sign({id:alreadyExist._id,staffID:alreadyExist.member_id},jwt_pass);
@@ -113,18 +113,19 @@ router.route('/logout').post(auth,async(req,res)=>{
     }
 });
 
-router.route('/viewProfile').get(auth,async(req,res)=>{ // done
+router.route('/viewProfile').get(async(req,res)=>{ // done
     try {
-        const token = req.header('auth-token'); 
+        // const token = req.header('auth-token'); 
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmZmIxYWYyZTc3Y2U3MWQ3Y2MyYThiYSIsInN0YWZmSUQiOiJoci0yNiIsImlhdCI6MTYxMDMxMjM5NX0.LuQJag2MRWd-sASidubcxBZr5yPmZk4z2MHrI5h7G38"
         const token_id = jwt.verify(token,"sign").staffID;
         console.log(token_id);
         console.log(token_id.substring(0,2));
         console.log(token_id.substring(0,2).localeCompare("hr"));
         let ouput;
         if(token_id.substring(0,2).localeCompare("hr") == 0)
-            {output = await HRmembers.find({id:token_id});}
+            {output = await HRmembers.find({member_id:token_id});}
         if(token_id.substring(0,2).localeCompare("ac") == 0)
-            {output = await AcademicMembers.find({id:token_id});}
+            {output = await AcademicMembers.find({member_id:token_id});}
         
         res.send(output);  
     } catch (error) {
@@ -133,9 +134,10 @@ router.route('/viewProfile').get(auth,async(req,res)=>{ // done
 });
 
 //Update Profile Route
-router.route('/updateProfile').put(auth,async(req,res)=>{ // done
+router.route('/updateProfile').put(async(req,res)=>{ // done
     try {
-        const token = req.header('auth-token'); 
+        // const token = req.header('auth-token'); 
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmZmIxYWYyZTc3Y2U3MWQ3Y2MyYThiYSIsInN0YWZmSUQiOiJoci0yNiIsImlhdCI6MTYxMDMxMjM5NX0.LuQJag2MRWd-sASidubcxBZr5yPmZk4z2MHrI5h7G38"
         const token_id = jwt.verify(token,"sign").staffID;
         //let fullProfile;
         let result;
@@ -143,24 +145,35 @@ router.route('/updateProfile').put(auth,async(req,res)=>{ // done
         if(token_id.substring(0,2).localeCompare("hr") == 0)
             {
                 console.log("hr");
-                let {email,gender,officeLocation,salary}=req.body;
+                let {email,gender,officeLocation,dayoff}=req.body;
                 //fullProfile = await HRmembers.findOne();
+
+                const filter1 = {"name":officeLocation};
+                let loc=await locations.findOne(filter1);
+
+
+                if (!loc){
+                    return  res.status(404).json({msg: "No valid Location"})
+                }
+
                 newData = {
-                email : email,
-                gender: gender,
-                officeLocation:officeLocation,
-                salary : salary,
+                "email" : email,
+                "gender": gender,
+                "officeLocation":loc._id,
+                "dayoff" : dayoff,
             }
+            console.log(loc);
+
             
             console.log("data is going to be updated");
-             result=await HRmembers.findOneAndUpdate({member_id:token_id},{newData},{new: true});
+             result=await HRmembers.findOneAndUpdate({member_id:token_id},newData,{new: true});
         }
         else{ if(token_id.substring(0,2).localeCompare("ac") == 0)
-            {let {email,gender}=req.body;
+            {let {email1,gender1}=req.body;
             //fullProfile = await AcademicMembers.findOne({member_id:token_id});
             newData = {
-                email : email,
-                gender: gender,
+                email : email1,
+                gender: gender1,
             }
             result=await AcademicMembers.findOneAndUpdate({member_id:token_id},newData,{new: true});
         }
