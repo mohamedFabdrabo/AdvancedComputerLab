@@ -221,9 +221,10 @@ router.route('/resetPassword').put(auth,async(req,res)=>{ // done
 });
 
 // Sign In Route
-router.route('/signIn').post(auth,async(req,res)=>{
+router.route('/signIn').post(async(req,res)=>{
     try {
-        const token=req.header('auth-token');
+        // const token=req.header('auth-token');
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmZmIxYWYyZTc3Y2U3MWQ3Y2MyYThiYSIsInN0YWZmSUQiOiJoci0yNiIsImlhdCI6MTYxMDMxMjM5NX0.LuQJag2MRWd-sASidubcxBZr5yPmZk4z2MHrI5h7G38"
         const token_id = jwt.verify(token,"sign").staffID;
         const dateIn= req.body.dateIn;
         let newData;
@@ -233,7 +234,8 @@ router.route('/signIn').post(auth,async(req,res)=>{
         
         if(token_id.substring(0,2).localeCompare("hr") == 0)
             result=await HRmembers.findOneAndUpdate({member_id:token_id}, {$push : {attendanceRecord : newData}},{new: true});    
-        res.send("Sign In Successfully");  
+        res.send("Sign In Successfully");
+        console.log(result)  
         //res.send(result);
     } catch (error) {
         res.status(500).json({error:error.message})
@@ -243,7 +245,8 @@ router.route('/signIn').post(auth,async(req,res)=>{
 // Sign Out Route
 router.route('/signOut').post(async(req,res)=>{
     try {
-        const token=req.header('auth-token');
+        //const token=req.header('auth-token');
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmZmIxYWYyZTc3Y2U3MWQ3Y2MyYThiYSIsInN0YWZmSUQiOiJoci0yNiIsImlhdCI6MTYxMDMxMjM5NX0.LuQJag2MRWd-sASidubcxBZr5yPmZk4z2MHrI5h7G38"
         const token_id = jwt.verify(token,"sign").staffID;
         const dateOut= req.body.dateOut;
         let newData;
@@ -254,6 +257,7 @@ router.route('/signOut').post(async(req,res)=>{
         if(token_id.substring(0,2).localeCompare("hr") == 0)
             result=await HRmembers.findOneAndUpdate({member_id:token_id}, {$push : {attendanceRecord : newData}},{new: true});    
         res.send("Sign Out Successfully");  
+        console.log(result)  
         //res.send(result);
     } catch (error) {
         res.status(500).json({error:error.message})
