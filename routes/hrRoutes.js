@@ -469,13 +469,13 @@ return res.status(500).json({error:error.message})
 });
 
 
-router.route('/updateCourse').get(auth,async(req,res)=>{
+router.route('/updateCourse').get(async(req,res)=>{
     try {
-      const {error}=dp2(req.body);
+      const {error}=dp2(req.query);
         if(error){
             return res.status(400).json(error.details[0].message);
         }
-        const token = req.header('auth-token'); 
+     /*   const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
          let output="nothing";   
@@ -486,11 +486,15 @@ router.route('/updateCourse').get(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-       
-        let{oldid,newid,newname}=req.body;  
+       */
+        let{oldid,newid,newname}=req.query;  
         const filter = {"cid":oldid};
         const update={"cid":newid,"name":newname}
+        console.log(oldid+" "+newid+" "+newname);
         const dep=await courses.findOneAndUpdate(filter,update,{new: true});
+        if(!dep){
+            return res.status(400).json({msg:"Course doesn't exist"});
+        }
         res.send(dep);
      
      // await dep.save();
@@ -503,13 +507,13 @@ router.route('/updateCourse').get(auth,async(req,res)=>{
     }
 });
 
-router.route('/delCourse').delete(auth,async(req,res)=>{
+router.route('/delCourse').delete(async(req,res)=>{
     try {
-        const {error}=dp3(req.body);
+        const {error}=dp3(req.query);
         if(error){
             return res.status(400).json(error.details[0].message);
         }
-       
+    /*   
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
@@ -521,10 +525,14 @@ router.route('/delCourse').delete(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-        let{id}=req.body;
+      */
+        let{id}=req.query;
         const filter = {"cid":id};
          
         const result= ( await courses.findOne(filter))._id;
+        if(!result){
+            return res.status(400).json({msg:"Course doesn't exist"});
+        }
         console.log(result);
         const filter1 = {courses:{$in:[result]}};
    // const val= await course.findOneAndDelete(filter); 
@@ -545,14 +553,15 @@ router.route('/delCourse').delete(auth,async(req,res)=>{
     }
 });
 
-router.route('/registerMem').post(auth,async(req,res)=>{
+router.route('/registerMem').post(async(req,res)=>{
     const {error}=dp4(req.body);
     if(error){
         return res.status(400).json(error.details[0].message);
     }
         
    try{     
-        const token = req.header('auth-token'); 
+    /*
+    const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
          let output="nothing";   
@@ -563,10 +572,14 @@ router.route('/registerMem').post(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-        
+      */  
        let{gender,name,email,salary,officeLocation,role,dayoff,department,ar}=req.body; 
       const loc=await  locations.findOne(officeLocation);
-    // console.log(loc);
+      if(!loc||dayoff!=="Saturday"){
+        return res.status(400).json({msg:"location doesn't exist"});
+    }
+  
+      // console.log(loc);
       if(loc.occupation==loc.capacity){
         return res.status(400).json({msg:"Max Capacity in this room"}); 
       }
@@ -597,6 +610,10 @@ else{
       const filter = {"name":department};
          
       const dep=await  Departments.findOne(filter);
+      if(!dep){
+        return res.status(400).json({msg:"department doesn't exist"});
+    }
+  
       const crs = await new AcademicMembers({"gender":gender,"name":name,"email":email,
     "salary":salary,"password":123456,"officeLocation":loc._id,"role":role,
     "dayoff":dayoff,"department":department,"attendanceRecord":ar
@@ -627,15 +644,14 @@ else{
 });
 
 
-router.route('/updateMem').get(auth,async(req,res)=>{
-    const {error}=dp5(req.body);
+router.route('/updateMem').get(async(req,res)=>{
+    const {error}=dp5(req.query);
     if(error){
         return res.status(400).json(error.details[0].message);
     }
-
-        
+       
     try{     
-         const token = req.header('auth-token'); 
+ /*        const token = req.header('auth-token'); 
           const token_id = jwt.verify(token,"sign").staffID;
         
           let output="nothing";   
@@ -646,8 +662,8 @@ router.route('/updateMem').get(auth,async(req,res)=>{
           return res.status(400).json({msg:"You cannot do that you are not HR"});
              if(output=="nothing")
          return res.status(400).json({msg:"You cannot do that you are not HR"});
-         
-        let{id,email,officeLocation,role,dayoff}=req.body; 
+   */      
+        let{id,email,officeLocation,role,dayoff}=req.query; 
         if(id.substring(0,2).localeCompare("hr") == 0&&dayoff!="Saturday"){
             return res.status(400).json({msg:"You cannot change your day off"});
          
@@ -656,13 +672,23 @@ router.route('/updateMem').get(auth,async(req,res)=>{
             const filter = {"member_id":id};
             const acm=await HRModel.findOne(filter);
             console.log(acm);
+           if(!acm){
+            return res.status(400).json({msg:"this Hr doesn't exist"});
+           }
             const filter1 = {"name":officeLocation};
             let loc1=await locations.findOne(filter1);
-           const loc2=loc1._id;
+            console.log(loc1+" "+officeLocation);
+            if(!loc1){
+                return res.status(400).json({msg:"this location doesn't exist"});
+               }
+            const loc2=loc1._id;
     
             if(acm.officeLocation+""!==loc2+""){
                 const filter2 = {"_id":acm.officeLocation};
                 let loc=await locations.findOne(filter2);
+                if(!loc){
+                    return res.status(400).json({msg:"this location doesn't exist"});
+                   }
                if(loc1.occupation+""===""+loc1.capacity){
                 return res.status(400).json({msg:"This room is full"});
                }
@@ -676,6 +702,7 @@ router.route('/updateMem').get(auth,async(req,res)=>{
                    const update = {"member_id":id,"email":email,"officeLocation":loc1._id,"role":role,"dayoff":dayoff};
                 
                    const result1=await HRModel.findOneAndUpdate(filter,update);
+                  
                    res.send(result1);
            
                }
@@ -693,10 +720,16 @@ router.route('/updateMem').get(auth,async(req,res)=>{
         }
         const filter = {"member_id":id};
         const acm=await AcademicMemberModel.findOne(filter);
+        if(!acm){
+            return res.status(400).json({msg:"this academic member doesn't exist"});
+           }
         console.log(acm);
         const filter1 = {"name":officeLocation};
 
         let loc1=await locations.findOne(filter1);
+        if(!loc1){
+            return res.status(400).json({msg:"this location doesn't exist"});
+           }
        const loc2=loc1._id;
         console.log(acm.officeLocation);
         console.log(loc2);
@@ -704,6 +737,10 @@ router.route('/updateMem').get(auth,async(req,res)=>{
         if(acm.officeLocation+""!==loc2+""){
             const filter2 = {"_id":acm.officeLocation};
             let loc=await locations.findOne(filter2);
+            if(!loc){
+                return res.status(400).json({msg:"this location doesn't exist"});
+               }
+           
             console.log(loc1.occupation);
             console.log(loc1.capacity);
            if(loc1.occupation+""===""+loc1.capacity){
@@ -740,14 +777,14 @@ router.route('/updateMem').get(auth,async(req,res)=>{
 });
 
 
-router.route('/delMem').delete(auth,async(req,res)=>{
-    const {error}=dp6(req.body);
+router.route('/delMem').delete(async(req,res)=>{
+    const {error}=dp6(req.query);
     if(error){
         return res.status(400).json(error.details[0].message);
     }
  
     try{     
-         const token = req.header('auth-token'); 
+       /*  const token = req.header('auth-token'); 
           const token_id = jwt.verify(token,"sign").staffID;
         
           let output="nothing";   
@@ -758,8 +795,8 @@ router.route('/delMem').delete(auth,async(req,res)=>{
           return res.status(400).json({msg:"You cannot do that you are not HR"});
              if(output=="nothing")
          return res.status(400).json({msg:"You cannot do that you are not HR"});
-         
-        let{id}=req.body; 
+         */
+        let{id}=req.query; 
         if(id.substring(0,2).localeCompare("hr")==0){
          
             
@@ -806,15 +843,16 @@ router.route('/delMem').delete(auth,async(req,res)=>{
          
 });
 
-router.route('/addsignup').post(auth,async(req,res)=>{
+router.route('/addsignup').post(async(req,res)=>{
         
-        
+     console.log(req.body)   
     try{    
         const {error}=dp7(req.body);
     if(error){
         return res.status(400).json(error.details[0].message);
     } 
-         const token = req.header('auth-token'); 
+    console.log("hi")
+       /*  const token = req.header('auth-token'); 
           const token_id = jwt.verify(token,"sign").staffID;
         
           let output="nothing";   
@@ -825,13 +863,17 @@ router.route('/addsignup').post(auth,async(req,res)=>{
           return res.status(400).json({msg:"You cannot do that you are not HR"});
              if(output=="nothing")
          return res.status(400).json({msg:"You cannot do that you are not HR"});
-         
+         */
          
         let{staffid,rec}=req.body; 
         const filter3 = {"member_id":staffid};
+        
         if(staffid.substring(0,2).localeCompare("hr")==0){
         let xx=await HRModel.findOne(filter3)
-       console.log(xx);
+        if(!xx)
+        {return res.status(400).json({msg:"user not found"});}
+     
+        console.log(xx);
        console.log(xx.attendanceRecord)
         xx.attendanceRecord.push(rec);
        
@@ -840,6 +882,9 @@ router.route('/addsignup').post(auth,async(req,res)=>{
         }
         else{
             let xx=await AcademicMemberModel.findOne(filter3)
+            if(!xx)
+            {return res.status(400).json({msg:"user not found"});}
+         
             xx.attendanceRecord.push(rec);
             res.send(xx.attendanceRecord);
             await xx.save(); 
@@ -854,17 +899,17 @@ router.route('/addsignup').post(auth,async(req,res)=>{
          
 });
 
-router.route('/viewattandence').get(auth,async(req,res)=>{
+router.route('/viewattandence').get(async(req,res)=>{
         
         
     try{     
       
          
-        const {error}=dp6(req.body);
+        const {error}=dp6(req.query);
     if(error){
         return res.status(400).json(error.details[0].message);
     } 
-        const token = req.header('auth-token'); 
+   /*    const token = req.header('auth-token'); 
           const token_id = jwt.verify(token,"sign").staffID;
         
           let output="nothing";   
@@ -873,11 +918,12 @@ router.route('/viewattandence').get(auth,async(req,res)=>{
           }  
           else
           return res.status(400).json({msg:"You cannot do that you are not HR"});
-             if(output=="nothing")
+     
+          if(output=="nothing")
          return res.status(400).json({msg:"You cannot do that you are not HR"});
+     */    console.log("hi")
          
-         
-         let{id}=req.body; 
+         let{id}=req.query; 
          const filter3 = {"member_id":id};
          if(id.substring(0,2).localeCompare("hr")==0){
          console.log(id);
@@ -901,11 +947,11 @@ router.route('/viewattandence').get(auth,async(req,res)=>{
 
 
 
-router.route('/updateSalary').get(auth,async(req,res)=>{
+router.route('/updateSalary').get(async(req,res)=>{
         
         
     try{     
-         const token = req.header('auth-token'); 
+       /*  const token = req.header('auth-token'); 
           const token_id = jwt.verify(token,"sign").staffID;
         
           let output="nothing";   
@@ -916,11 +962,15 @@ router.route('/updateSalary').get(auth,async(req,res)=>{
           return res.status(400).json({msg:"You cannot do that you are not HR"});
              if(output=="nothing")
          return res.status(400).json({msg:"You cannot do that you are not HR"});
-        let{id,salary1}=req.body; 
+       */
+         let{id,salary1}=req.query; 
         const filter3 = {"member_id":id};
         
         if(id.substring(0,2).localeCompare("hr")==0){
         let crs=await HRModel.findOne(filter3);
+        if(!crs)
+       { return res.status(400).json({msg:"User doesn't exist"});}
+       
         console.log(crs);
         crs.salary=salary1;
         const result=   await crs.save();   
@@ -928,6 +978,9 @@ router.route('/updateSalary').get(auth,async(req,res)=>{
     }
         else{
             let crs=await AcademicMemberModel.findOne(filter3);
+            if(!crs)
+       { return res.status(400).json({msg:"User doesn't exist"});}
+       
             crs.salary=salary1;
          const result=   await crs.save();   
         res.send(result);
