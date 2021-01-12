@@ -126,7 +126,11 @@ router.route('/viewProfile').get(async(req,res)=>{ // done
             {output = await HRmembers.find({member_id:token_id});}
         if(token_id.substring(0,2).localeCompare("ac") == 0)
             {output = await AcademicMembers.find({member_id:token_id});}
-        
+        let office = await locations.findOne({_id:output[0].officeLocation});
+        output[1] = office.name;
+        console.log(output)
+        console.log(office)
+
         res.send(output);  
     } catch (error) {
         res.status(500).json({error:error.message})
@@ -190,9 +194,10 @@ router.route('/updateProfile').put(async(req,res)=>{ // done
 })
 
 //Reset Password Route
-router.route('/resetPassword').put(auth,async(req,res)=>{ // done
+router.route('/resetPassword').put(async(req,res)=>{ // done
     try {
-        const token = req.header('auth-token'); 
+        // const token = req.header('auth-token'); 
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmZmIxYWYyZTc3Y2U3MWQ3Y2MyYThiYSIsInN0YWZmSUQiOiJoci0yNiIsImlhdCI6MTYxMDMxMjM5NX0.LuQJag2MRWd-sASidubcxBZr5yPmZk4z2MHrI5h7G38"
         const token_id = jwt.verify(token,"sign").staffID;
         //let fullProfile;
         let {newPassword,passwordCheck}=req.body;
@@ -214,6 +219,8 @@ router.route('/resetPassword').put(auth,async(req,res)=>{ // done
             result=await AcademicMembers.findOneAndUpdate({member_id:token_id},{password: newPassword},{new: true});     
         
         res.send("Password Updated Successfully");
+        console.log(result)  
+
         //res.send();  
     } catch (error) {
         res.status(500).json({error:error.message})
@@ -266,7 +273,8 @@ router.route('/signOut').post(async(req,res)=>{
 
 router.route('/ViewAttendance/:month').get(async(req,res)=>{
     try {
-        const token=req.header('auth-token');
+        // const token=req.header('auth-token');
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmZmIxYWYyZTc3Y2U3MWQ3Y2MyYThiYSIsInN0YWZmSUQiOiJoci0yNiIsImlhdCI6MTYxMDMxMjM5NX0.LuQJag2MRWd-sASidubcxBZr5yPmZk4z2MHrI5h7G38"
         const token_id = jwt.verify(token,"sign").staffID;
         let member;
         if(token_id.substring(0,2).localeCompare("hr") == 0)
@@ -278,14 +286,20 @@ router.route('/ViewAttendance/:month').get(async(req,res)=>{
        // console.log(req.params.month);
         if(req.params.month== ":")
             {
-                //console.log("return attend");
+                // console.log("return attend");
+                console.log(attend);
+
                 return res.send(attend);
+
             }    
         let signs = []; 
+
+
         //console.log(attend);
         for(element of attend)
         {
-            console.log(req.params.month);
+            console.log(element.time);
+
             if(req.params.month == (element.time.getMonth()+1))
               {
                 console.log("pushed")
