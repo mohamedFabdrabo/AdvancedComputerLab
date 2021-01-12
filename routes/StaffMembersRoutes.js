@@ -124,9 +124,9 @@ router.route('/viewProfile').get(auth,async(req,res)=>{ // done
         console.log(token_id.substring(0,2).localeCompare("hr"));
         let ouput;
         if(token_id.substring(0,2).localeCompare("hr") == 0)
-            {output = await HRmembers.find({id:token_id});}
+            {output = await HRmembers.find({member_id:token_id});}
         if(token_id.substring(0,2).localeCompare("ac") == 0)
-            {output = await AcademicMembers.find({id:token_id});}
+            {output = await AcademicMembers.find({member_id:token_id});}
         
         res.send(output);  
     } catch (error) {
