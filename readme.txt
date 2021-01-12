@@ -1,6 +1,3 @@
-# AdvancedComputerLab
- CSEN704 Advanced Computer Lab project
-
 run index.js file
 listen to port 3000
 UMl link https://drive.google.com/file/d/1K6qzBL8iy6DtwEIQ5EJpwarAR_eeZFiv/view
