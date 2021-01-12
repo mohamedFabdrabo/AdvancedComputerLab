@@ -572,7 +572,7 @@ router.route('/registerMem').post(async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
                 return res.status(400).json({msg:"You cannot do that you are not HR"});
-                
+ 
        let{gender,name,email,salary,officeLocation,role,dayoff,department,ar}=req.body; 
       const loc=await  locations.findOne(officeLocation);
       
