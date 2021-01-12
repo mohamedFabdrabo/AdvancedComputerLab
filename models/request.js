@@ -1,7 +1,6 @@
 const mongoose=require('mongoose');
 const Schema   = mongoose.Schema ;
 //enum states = {Pending,Accepted,Rejecte,Cancelled}
-const counter = require('./counter');
 
 const RE=mongoose.Schema({
     rid:{type:Number,unique:true,sparse:true},
@@ -14,8 +13,7 @@ const RE=mongoose.Schema({
     senderDep:String,
     slot:{type:Schema.Types.ObjectId ,ref:"slot"},
     newDayoff:String,
-    requested_day  :Date,
-    duration:Number,
+    requested_day:Date,
     type:String
     //type:{enum : ['Compensation','Replacement','Annual','Slot-linking','dayOffChange','Sick','Maternity','Accidental']}
     

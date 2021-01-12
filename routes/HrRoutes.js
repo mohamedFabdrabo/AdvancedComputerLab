@@ -529,7 +529,7 @@ router.route('/registerMem').post(auth,async(req,res)=>{
          else
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
-        return res.status(400).json({msg:"You cannot do that you are not HR"});
+                return res.status(400).json({msg:"You cannot do that you are not HR"});
         
        let{gender,name,email,salary,officeLocation,role,dayoff,department,ar}=req.body; 
       const loc=await  locations.findOne(officeLocation);
@@ -541,9 +541,10 @@ router.route('/registerMem').post(auth,async(req,res)=>{
       await loc.save();
       if(role==="HR"){
           console.log("HI");
-
+          const salt=await bcrypt.genSalt();
+          const passwordHashed=await bcrypt.hash("123456",salt);   
     const crs = await new HRModel({"gender":gender,"name":name,"email":email,
-    "salary":salary,"password":123456,"officeLocation":loc._id,"role":role,
+    "salary":salary,"password":passwordHashed,"officeLocation":loc._id,"role":role,
     "dayoff":"Saturday","attendanceRecord":ar
     })
     const saveLocation= await crs.save();
