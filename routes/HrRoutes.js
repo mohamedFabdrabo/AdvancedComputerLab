@@ -19,6 +19,7 @@ const { mquery } = require('mongoose');
 const { required } = require('joi');
 const Joi = require('joi'); 
 
+var days_names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 
 const {addCourseValidation,addLocationValidation,deleteLocationValidation,af,af1,dp,dp1,dp2,dp3,dp4,dp5,dp6,dp7,dp8,dp9,dp10} =require('../validation/HrRoutesValidation');
@@ -52,8 +53,7 @@ const auth=(req,res,next)=>{
 
 router.route('/addLocation').post(async(req,res)=>{
     try {
-        console.log("fuck you too")
-    
+        
         const {error}=await addLocationValidation(req.body);
         
        if(error){
@@ -555,10 +555,10 @@ router.route('/delCourse').delete(async(req,res)=>{
 
 router.route('/registerMem').post(async(req,res)=>{
     const {error}=dp4(req.body);
+    
     if(error){
         return res.status(400).json(error.details[0].message);
     }
-        
    try{     
     /*
     const token = req.header('auth-token'); 
@@ -575,7 +575,8 @@ router.route('/registerMem').post(async(req,res)=>{
       */  
        let{gender,name,email,salary,officeLocation,role,dayoff,department,ar}=req.body; 
       const loc=await  locations.findOne(officeLocation);
-      if(!loc||dayoff!=="Saturday"){
+      
+      if(!loc){
         return res.status(400).json({msg:"location doesn't exist"});
     }
   
@@ -585,7 +586,12 @@ router.route('/registerMem').post(async(req,res)=>{
       }
       loc.occupation++;
       await loc.save();
+
       if(role==="HR"){
+        if(dayoff!=="Saturday"){
+            return res.status(400).json({msg:"location doesn't exist"});
+        }
+      
           console.log("HI");
 
     const crs = await new HRModel({"gender":gender,"name":name,"email":email,
@@ -994,6 +1000,203 @@ router.route('/updateSalary').get(async(req,res)=>{
 
      
 });
+  
+router.route('/viewAllMissingDays/:month').get(async(req,res)=>{
+   console.log(req.query.month)
+    try {
+        let final=[];
+ 
+        const z=   await AcademicMemberModel.find();
+     console.log("hi")
+     for(const element of z ){
+       let token_id=element.member_id;
+       let member;
+         if(token_id.substring(0,2).localeCompare("ac") == 0)   
+            member = await AcademicMembers.findOne({member_id:token_id});
+            if(req.params.month== ":")
+                return res.status(401).json({msg:"please specify the month"});
+        
+        let attend = member.attendanceRecord;
+        var i;
+        let dddd = new Date(2011,req.query.month,0);
+        //console.log(req.params.month);
+        //console.log(dddd);
+        const monthDays = dddd.getDate();//return the number of days in the month
+        var temp;
+        var missingDays = 0;
+        //console.log(monthDays);
+        
+        for(i = 1;i<=monthDays;i++)
+        {
+            //console.log(i);
+            temp = attend.filter(function(element) {
+                //console.log(element.time.getDate())
+                let d = element.time;
+                return  d.getDate() == i;
+            });
+            let daydate = new Date(2020,req.query.month,i).getDay();
+            let dayname = days_names[daydate];
+            if(temp.length == 0 && daydate != 5 && dayname.localeCompare(member.dayoff)!=0)
+                missingDays++;
+
+        }
+    if(missingDays>0){
+        final.push({"name":element.name,"id":element.member_id,"Days":missingDays})
+        console.log("hi")
+       // console.log(final)
+
+    }
+       
+}
+const z1=   await HRModel.find();
+     console.log("hi")
+     for(const element of z1 ){
+       let token_id=element.member_id;
+       let member;
+        if(token_id.substring(0,2).localeCompare("hr") == 0)
+            member = await HRmembers.findOne({member_id:token_id});
+            if(req.params.month== ":")
+                return res.status(401).json({msg:"please specify the month"});
+        
+        let attend = member.attendanceRecord;
+        var i;
+        let dddd = new Date(2011,req.query.month,0);
+        //console.log(req.params.month);
+        //console.log(dddd);
+        const monthDays = dddd.getDate();//return the number of days in the month
+        var temp;
+        var missingDays = 0;
+        //console.log(monthDays);
+        
+        for(i = 1;i<=monthDays;i++)
+        {
+            //console.log(i);
+            temp = attend.filter(function(element) {
+                //console.log(element.time.getDate())
+                let d = element.time;
+                return  d.getDate() == i;
+            });
+            let daydate = new Date(2020,req.query.month,i).getDay();
+            let dayname = days_names[daydate];
+            if(temp.length == 0 && daydate != 5 && dayname.localeCompare(member.dayoff)!=0)
+                missingDays++;
+
+        }
+    if(missingDays>0){
+        final.push({"name":element.name,"id":element.member_id,"Days":missingDays})
+        console.log("hi")
+       // console.log(final)
+
+    }
+       
+}
+console.log(final)
+res.send(final); 
+} 
+    catch (error) {
+        res.status(500).json({error:error.message})
+    }
+  
+       
+});
 
 
+router.route('/viewAllMissingHours/:month').get(async(req,res)=>{
+    console.log(req.query.month)
+     try {
+         let final=[];
+  
+         const z=   await AcademicMemberModel.find();
+      console.log("hi")
+      for(const element of z ){
+        let token_id=element.member_id;
+        let member;
+          if(token_id.substring(0,2).localeCompare("ac") == 0)   
+             member = await AcademicMembers.findOne({member_id:token_id});
+             if(req.params.month== ":")
+                 return res.status(401).json({msg:"please specify the month"});
+         
+         let attend = member.attendanceRecord;
+         var i;
+         let dddd = new Date(2011,req.query.month,0);
+         //console.log(req.params.month);
+         //console.log(dddd);
+         const monthDays = dddd.getDate();//return the number of days in the month
+         var temp;
+         var missingDays = 0;
+         //console.log(monthDays);
+         
+         for(i = 1;i<=monthDays;i++)
+         {
+             //console.log(i);
+             temp = attend.filter(function(element) {
+                 //console.log(element.time.getDate())
+                 let d = element.time;
+                 return  d.getDate() == i;
+             });
+             let daydate = new Date(2020,req.query.month,i).getDay();
+             let dayname = days_names[daydate];
+             if(temp.length == 0 && daydate != 5 && dayname.localeCompare(member.dayoff)!=0)
+                 missingDays++;
+ 
+         }
+     if(missingDays>0){
+         final.push({"name":element.name,"id":element.member_id,"Days":missingDays})
+         console.log("hi")
+        // console.log(final)
+ 
+     }
+        
+ }
+ const z1=   await HRModel.find();
+      console.log("hi")
+      for(const element of z1 ){
+        let token_id=element.member_id;
+        let member;
+         if(token_id.substring(0,2).localeCompare("hr") == 0)
+             member = await HRmembers.findOne({member_id:token_id});
+             if(req.params.month== ":")
+                 return res.status(401).json({msg:"please specify the month"});
+         
+         let attend = member.attendanceRecord;
+         var i;
+         let dddd = new Date(2011,req.query.month,0);
+         //console.log(req.params.month);
+         //console.log(dddd);
+         const monthDays = dddd.getDate();//return the number of days in the month
+         var temp;
+         var missingDays = 0;
+         //console.log(monthDays);
+         
+         for(i = 1;i<=monthDays;i++)
+         {
+             //console.log(i);
+             temp = attend.filter(function(element) {
+                 //console.log(element.time.getDate())
+                 let d = element.time;
+                 return  d.getDate() == i;
+             });
+             let daydate = new Date(2020,req.query.month,i).getDay();
+             let dayname = days_names[daydate];
+             if(temp.length == 0 && daydate != 5 && dayname.localeCompare(member.dayoff)!=0)
+                 missingDays++;
+ 
+         }
+     if(missingDays>0){
+         final.push({"name":element.name,"id":element.member_id,"Days":missingDays})
+         console.log("hi")
+        // console.log(final)
+ 
+     }
+        
+ }
+ console.log(final)
+ res.send(final); 
+ } 
+     catch (error) {
+         res.status(500).json({error:error.message})
+     }
+   
+        
+ });
 module.exports = router;
