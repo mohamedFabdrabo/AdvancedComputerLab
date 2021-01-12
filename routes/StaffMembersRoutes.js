@@ -127,7 +127,10 @@ router.route('/viewProfile').get(auth,async(req,res)=>{ // done
             {output = await HRmembers.find({member_id:token_id});}
         if(token_id.substring(0,2).localeCompare("ac") == 0)
             {output = await AcademicMembers.find({member_id:token_id});}
-        
+        let office = await locations.findOne({_id:output[0].officeLocation});
+        output[1] = office.name;
+         console.log(output)
+        // console.log(office)
         res.send(output);  
     } catch (error) {
         res.status(500).json({error:error.message})
