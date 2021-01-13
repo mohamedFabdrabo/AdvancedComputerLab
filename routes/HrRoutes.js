@@ -51,7 +51,7 @@ const auth=(req,res,next)=>{
 }
 
 
-router.route('/addLocation').post(async(req,res)=>{
+router.route('/addLocation').post(auth,async(req,res)=>{
     try {
         
         const {error}=await addLocationValidation(req.body);
@@ -60,7 +60,7 @@ router.route('/addLocation').post(async(req,res)=>{
            
             return res.status(400).json(error.details[0].message);
         }
-        /*
+        
        const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
         let output="nothing";   
@@ -71,7 +71,6 @@ router.route('/addLocation').post(async(req,res)=>{
        
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-       */
       
         let {nam,cap,typ,occ}=req.body;
         const loc = new locations(
@@ -93,7 +92,7 @@ router.route('/addLocation').post(async(req,res)=>{
 });
 
 
-router.route('/delLocation').delete(async(req,res)=>{
+router.route('/delLocation').delete(auth,async(req,res)=>{
         try {
             const {error}=await deleteLocationValidation(req.query);
             
@@ -101,7 +100,7 @@ router.route('/delLocation').delete(async(req,res)=>{
                
                 return res.status(400).json(error.details[0].message);
             }
-            /*
+            
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
 
@@ -112,7 +111,7 @@ router.route('/delLocation').delete(async(req,res)=>{
         else{
         return res.status(400).json({msg:"You cannot do that you are not HR"});       
         }
-        */
+        
        let {nam}=req.query;
 console.log(nam);
         const deleted=await locations.findOneAndDelete({"name": nam});
@@ -129,7 +128,7 @@ console.log(nam);
     }
  
 });
-router.route('/updateLocation').get(async(req,res)=>{
+router.route('/updateLocation').get(auth,async(req,res)=>{
     try {
         const {error}=await addLocationValidation(req.query);
         
@@ -137,7 +136,7 @@ router.route('/updateLocation').get(async(req,res)=>{
            
             return res.status(400).json(error.details[0].message);
         }
-        /*const token = req.header('auth-token'); 
+        const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
          let output="nothing";   
@@ -148,7 +147,7 @@ router.route('/updateLocation').get(async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-        */
+        
        let {nam,cap,typ,occ}=req.query;
       
         
@@ -171,7 +170,7 @@ router.route('/updateLocation').get(async(req,res)=>{
         return  res.status(500).json({error:error.message})
     }
 });
-router.route('/addFaculty').post(async(req,res)=>{
+router.route('/addFaculty').post(auth,async(req,res)=>{
     try {
         const {error}=await af(req.body);
         
@@ -180,7 +179,7 @@ router.route('/addFaculty').post(async(req,res)=>{
             return res.status(400).json(error.details[0].message);
         }
 
-      /*  console.log("ya rab");
+       console.log("ya rab");
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
@@ -192,7 +191,7 @@ router.route('/addFaculty').post(async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-      */
+      
         let{nam,department}=req.body;  
         const loc = new faculties(
               {name:nam,
@@ -208,7 +207,7 @@ router.route('/addFaculty').post(async(req,res)=>{
     }
 });
 
-router.route('/updateFaculty').get(async(req,res)=>{
+router.route('/updateFaculty').get(auth,async(req,res)=>{
        try {
            console.log("hi");
             const {error}=await af1(req.query);
@@ -218,7 +217,7 @@ router.route('/updateFaculty').get(async(req,res)=>{
                 return res.status(400).json(error.details[0].message);
             }
     
-      /*  const token = req.header('auth-token'); 
+        const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
          let output="nothing";   
@@ -229,7 +228,7 @@ router.route('/updateFaculty').get(async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-        */
+        
         let {nam,newname}=req.query;
         const filter = {"name":nam};
         
@@ -252,7 +251,7 @@ router.route('/updateFaculty').get(async(req,res)=>{
 });
 
 
-router.route('/delFaculty').delete(async(req,res)=>{
+router.route('/delFaculty').delete(auth,async(req,res)=>{
     try {
         console.log("hi");
         const {error}=await deleteLocationValidation(req.query);
@@ -261,8 +260,8 @@ router.route('/delFaculty').delete(async(req,res)=>{
            
             return res.status(400).json(error.details[0].message);
         }
-    
-      /*  const token = req.header('auth-token'); 
+    console.log("Why")
+       const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
 
          let output="nothing";   
@@ -272,11 +271,9 @@ router.route('/delFaculty').delete(async(req,res)=>{
         else{
         return res.status(400).json({msg:"You cannot do that you are not HR"});       
         }
-        
-        if(typeof nam!='string'){
-            return res.status(403).json({msg:"plz enter types correclty "});   
-           }
-           */
+        console.log("Why why")
+    
+          
           let {nam}=req.query;
 console.log(nam)
         const deleted=await faculties.findOneAndDelete({"name": nam});
@@ -291,7 +288,7 @@ console.log(nam)
  
 });
 
-router.route('/addDepart').post(async(req,res)=>{
+router.route('/addDepart').post(auth,async(req,res)=>{
     try {
             const {error}=await dp(req.body);
                 
@@ -299,7 +296,7 @@ router.route('/addDepart').post(async(req,res)=>{
                
                 return res.status(400).json(error.details[0].message);
             }
-        /*const token = req.header('auth-token'); 
+        const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
          let output="nothing";   
@@ -310,7 +307,7 @@ router.route('/addDepart').post(async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-      */
+      
       
         let{facname,nam}=req.body;  
 
@@ -341,26 +338,29 @@ router.route('/addDepart').post(async(req,res)=>{
 
 
 
-router.route('/updateDepart').get(async(req,res)=>{
+router.route('/updateDepart').get(auth,async(req,res)=>{
     try {
-       //  const token_id = jwt.verify(token,"sign").staffID;
-         const {error}=await dp1(req.query);
-     
-       //  const token = req.header('auth-token'); 
+        const {error}=await dp1(req.query);
                 
-         if(error){
-            
+        if(error){
+            console.log("gtof")
              return res.status(400).json(error.details[0].message);
          }
-     /*    let output="nothing";   
-         if(token_id.substring(0,2).localeCompare("hr") == 0){
-             {output = await HRmembers.find({id:token_id});}
-         }  
-         else
-         return res.status(400).json({msg:"You cannot do that you are not HR"});
-            if(output=="nothing")
-        return res.status(400).json({msg:"You cannot do that you are not HR"});
-      */
+         console.log("Retarded")
+     const token = req.header('auth-token'); 
+      const token_id = jwt.verify(token,"sign").staffID;
+    
+      let output="nothing";   
+      if(token_id.substring(0,2).localeCompare("hr") == 0){
+          {output = await HRmembers.find({id:token_id});}
+      }  
+      else
+      return res.status(400).json({msg:"You cannot do that you are not HR"});
+         if(output=="nothing")
+     return res.status(400).json({msg:"You cannot do that you are not HR"});
+   
+        console.log('why')
+      
         let{oldnam,newnam}=req.query;  
         const filter = {"name":oldnam};
         const update={"name":newnam}
@@ -377,11 +377,11 @@ router.route('/updateDepart').get(async(req,res)=>{
     }
 });
 
-router.route('/delDepart').delete(async(req,res)=>{
+router.route('/delDepart').delete(auth,async(req,res)=>{
     try {
 
         const {error}=await deleteLocationValidation(req.query);
-          /*  
+           
         if(error){
            
             return res.status(400).json(error.details[0].message);
@@ -397,7 +397,7 @@ router.route('/delDepart').delete(async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-        */
+        
         let{nam}=req.query;
         const filter = {"name":nam};
          
@@ -422,7 +422,7 @@ router.route('/delDepart').delete(async(req,res)=>{
     }
 }); 
 
-router.route('/addCourse').post(async(req,res)=>{
+router.route('/addCourse').post(auth,async(req,res)=>{
     try {
         
         const {error}=await addCourseValidation(req.body);
@@ -432,7 +432,6 @@ router.route('/addCourse').post(async(req,res)=>{
             return res.status(400).json(error.details[0].message);
          
         }
-        /*
 
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
@@ -445,7 +444,7 @@ router.route('/addCourse').post(async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-       */
+       
         let{depname,nam,id}=req.body;  
        
        
@@ -469,13 +468,13 @@ return res.status(500).json({error:error.message})
 });
 
 
-router.route('/updateCourse').get(async(req,res)=>{
+router.route('/updateCourse').get(auth,async(req,res)=>{
     try {
       const {error}=dp2(req.query);
         if(error){
             return res.status(400).json(error.details[0].message);
         }
-     /*   const token = req.header('auth-token'); 
+        const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
          let output="nothing";   
@@ -486,7 +485,7 @@ router.route('/updateCourse').get(async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-       */
+       
         let{oldid,newid,newname}=req.query;  
         const filter = {"cid":oldid};
         const update={"cid":newid,"name":newname}
@@ -507,13 +506,13 @@ router.route('/updateCourse').get(async(req,res)=>{
     }
 });
 
-router.route('/delCourse').delete(async(req,res)=>{
+router.route('/delCourse').delete(auth,async(req,res)=>{
     try {
         const {error}=dp3(req.query);
         if(error){
             return res.status(400).json(error.details[0].message);
         }
-    /*   
+      
         const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
@@ -525,7 +524,7 @@ router.route('/delCourse').delete(async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-      */
+      
         let{id}=req.query;
         const filter = {"cid":id};
          
@@ -553,14 +552,14 @@ router.route('/delCourse').delete(async(req,res)=>{
     }
 });
 
-router.route('/registerMem').post(async(req,res)=>{
+router.route('/registerMem').post(auth,async(req,res)=>{
     const {error}=dp4(req.body);
     
     if(error){
         return res.status(400).json(error.details[0].message);
     }
    try{     
-    /*
+    
     const token = req.header('auth-token'); 
          const token_id = jwt.verify(token,"sign").staffID;
        
@@ -651,14 +650,14 @@ else{
 });
 
 
-router.route('/updateMem').get(async(req,res)=>{
+router.route('/updateMem').get(auth,async(req,res)=>{
     const {error}=dp5(req.query);
     if(error){
         return res.status(400).json(error.details[0].message);
     }
        
     try{     
- /*        const token = req.header('auth-token'); 
+         const token = req.header('auth-token'); 
           const token_id = jwt.verify(token,"sign").staffID;
         
           let output="nothing";   
@@ -669,7 +668,7 @@ router.route('/updateMem').get(async(req,res)=>{
           return res.status(400).json({msg:"You cannot do that you are not HR"});
              if(output=="nothing")
          return res.status(400).json({msg:"You cannot do that you are not HR"});
-   */      
+        
         let{id,email,officeLocation,role,dayoff}=req.query; 
         if(id.substring(0,2).localeCompare("hr") == 0&&dayoff!="Saturday"){
             return res.status(400).json({msg:"You cannot change your day off"});
@@ -784,14 +783,14 @@ router.route('/updateMem').get(async(req,res)=>{
 });
 
 
-router.route('/delMem').delete(async(req,res)=>{
+router.route('/delMem').delete(auth,async(req,res)=>{
     const {error}=dp6(req.query);
     if(error){
         return res.status(400).json(error.details[0].message);
     }
  
     try{     
-       /*  const token = req.header('auth-token'); 
+         const token = req.header('auth-token'); 
           const token_id = jwt.verify(token,"sign").staffID;
         
           let output="nothing";   
@@ -802,7 +801,7 @@ router.route('/delMem').delete(async(req,res)=>{
           return res.status(400).json({msg:"You cannot do that you are not HR"});
              if(output=="nothing")
          return res.status(400).json({msg:"You cannot do that you are not HR"});
-         */
+         
         let{id}=req.query; 
         if(id.substring(0,2).localeCompare("hr")==0){
          
@@ -850,7 +849,7 @@ router.route('/delMem').delete(async(req,res)=>{
          
 });
 
-router.route('/addsignup').post(async(req,res)=>{
+router.route('/addsignup').post(auth,async(req,res)=>{
         
      console.log(req.body)   
     try{    
@@ -859,7 +858,7 @@ router.route('/addsignup').post(async(req,res)=>{
         return res.status(400).json(error.details[0].message);
     } 
     console.log("hi")
-       /*  const token = req.header('auth-token'); 
+        const token = req.header('auth-token'); 
           const token_id = jwt.verify(token,"sign").staffID;
         
           let output="nothing";   
@@ -870,7 +869,6 @@ router.route('/addsignup').post(async(req,res)=>{
           return res.status(400).json({msg:"You cannot do that you are not HR"});
              if(output=="nothing")
          return res.status(400).json({msg:"You cannot do that you are not HR"});
-         */
          
         let{staffid,rec}=req.body; 
         const filter3 = {"member_id":staffid};
@@ -906,7 +904,7 @@ router.route('/addsignup').post(async(req,res)=>{
          
 });
 
-router.route('/viewattandence').get(async(req,res)=>{
+router.route('/viewattandence').get(auth,async(req,res)=>{
         
         
     try{     
@@ -916,7 +914,7 @@ router.route('/viewattandence').get(async(req,res)=>{
     if(error){
         return res.status(400).json(error.details[0].message);
     } 
-   /*    const token = req.header('auth-token'); 
+      const token = req.header('auth-token'); 
           const token_id = jwt.verify(token,"sign").staffID;
         
           let output="nothing";   
@@ -928,7 +926,7 @@ router.route('/viewattandence').get(async(req,res)=>{
      
           if(output=="nothing")
          return res.status(400).json({msg:"You cannot do that you are not HR"});
-     */    console.log("hi")
+       console.log("hi")
          
          let{id}=req.query; 
          const filter3 = {"member_id":id};
@@ -954,11 +952,11 @@ router.route('/viewattandence').get(async(req,res)=>{
 
 
 
-router.route('/updateSalary').get(async(req,res)=>{
+router.route('/updateSalary').get(auth,async(req,res)=>{
         
         
     try{     
-       /*  const token = req.header('auth-token'); 
+        const token = req.header('auth-token'); 
           const token_id = jwt.verify(token,"sign").staffID;
         
           let output="nothing";   
@@ -969,7 +967,7 @@ router.route('/updateSalary').get(async(req,res)=>{
           return res.status(400).json({msg:"You cannot do that you are not HR"});
              if(output=="nothing")
          return res.status(400).json({msg:"You cannot do that you are not HR"});
-       */
+       
          let{id,salary1}=req.query; 
         const filter3 = {"member_id":id};
         
@@ -1002,9 +1000,20 @@ router.route('/updateSalary').get(async(req,res)=>{
      
 });
   
-router.route('/viewAllMissingDays/:month').get(async(req,res)=>{
-   console.log(req.query.month)
+router.route('/viewAllMissingDays/:month').get(auth,async(req,res)=>{
     try {
+        const token = req.header('auth-token'); 
+        const token_id = jwt.verify(token,"sign").staffID;
+      
+        let output="nothing";   
+        if(token_id.substring(0,2).localeCompare("hr") == 0){
+            {output = await HRmembers.find({ccid:token_id});}
+        }  
+        else
+        return res.status(400).json({msg:"You cannot do that you are not HR"});
+           if(output=="nothing")
+       return res.status(400).json({msg:"You cannot do that you are not HR"});
+     
         let final=[];
  
         const z=   await AcademicMemberModel.find();
@@ -1102,11 +1111,22 @@ res.send(final);
 });
 
 
-router.route('/viewAllMissingHours/:month').get(async(req,res)=>{
-    console.log(req.query.month)
+router.route('/viewAllMissingHours/:month').get(auth,async(req,res)=>{
+    
      try {
          let final=[];
-  
+         const token = req.header('auth-token'); 
+         const token_id = jwt.verify(token,"sign").staffID;
+       
+         let output="nothing";   
+         if(token_id.substring(0,2).localeCompare("hr") == 0){
+             {output = await HRmembers.find({ccid:token_id});}
+         }  
+         else
+         return res.status(400).json({msg:"You cannot do that you are not HR"});
+            if(output=="nothing")
+        return res.status(400).json({msg:"You cannot do that you are not HR"});
+      
          const z=   await AcademicMemberModel.find();
       console.log("hi")
       for(const element of z ){
