@@ -148,24 +148,35 @@ router.route('/updateProfile').put(auth,async(req,res)=>{ // done
         if(token_id.substring(0,2).localeCompare("hr") == 0)
             {
                 console.log("hr");
-                let {email,gender,officeLocation,salary}=req.body;
+                let {email,gender,officeLocation,dayoff}=req.body;
                 //fullProfile = await HRmembers.findOne();
+				
+                const filter1 = {"name":officeLocation};
+                let loc=await locations.findOne(filter1);
+
+
+                if (!loc){
+                    return  res.status(404).json({msg: "No valid Location"})
+                }
+
                 newData = {
-                email : email,
-                gender: gender,
-                officeLocation:officeLocation,
-                salary : salary,
+                "email" : email,
+                "gender": gender,
+                "officeLocation":loc._id,
+                "dayoff" : dayoff,
             }
+			console.log(loc);
+
             
             console.log("data is going to be updated");
-             result=await HRmembers.findOneAndUpdate({member_id:token_id},{newData},{new: true});
+             result=await HRmembers.findOneAndUpdate({member_id:token_id},newData,{new: true});
         }
         else{ if(token_id.substring(0,2).localeCompare("ac") == 0)
             {let {email,gender}=req.body;
             //fullProfile = await AcademicMembers.findOne({member_id:token_id});
             newData = {
-                email : email,
-                gender: gender,
+                "email" : email,
+                "gender": gender,
             }
             result=await AcademicMembers.findOneAndUpdate({member_id:token_id},newData,{new: true});
         }
