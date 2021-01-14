@@ -197,6 +197,8 @@ router.route('/resetPassword').put(auth,async(req,res)=>{ // done
         const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
         //let fullProfile;
+        const salt=await bcrypt.genSalt();
+        const passwordHashed=await bcrypt.hash(newPassword,salt);
         let {newPassword,passwordCheck}=req.body;
         let result;
         if(!newPassword){
@@ -210,10 +212,10 @@ router.route('/resetPassword').put(auth,async(req,res)=>{ // done
         }
        
         if(token_id.substring(0,2).localeCompare("hr") == 0)
-           result=await HRmembers.findOneAndUpdate({member_id:token_id},{password: newPassword},{new: true});    
+           result=await HRmembers.findOneAndUpdate({member_id:token_id},{passwordHashed: newPassword},{new: true});    
         
         if(token_id.substring(0,2).localeCompare("ac") == 0)
-            result=await AcademicMembers.findOneAndUpdate({member_id:token_id},{password: newPassword},{new: true});     
+            result=await AcademicMembers.findOneAndUpdate({member_id:token_id},{passwordHashed: newPassword},{new: true});     
         
         res.send("Password Updated Successfully");
         //res.send();  
