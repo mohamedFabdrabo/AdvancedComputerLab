@@ -17,6 +17,7 @@ const DepartmentModel = require('../models/DepartmentModel');
 const { RSA_NO_PADDING } = require('constants');
 const { promises } = require('fs');
 const { date } = require('joi');
+const { find, findOne } = require('../models/slot');
 const router = express.Router();
 const auth=(req,res,next)=>{
     try {
@@ -42,6 +43,23 @@ const auth=(req,res,next)=>{
         res.status(500).json({error:error.message})
     }
 }
+router.route('/AllCourseSlots').get(auth,async(req,res)=>{
+    try {
+        const token = req.header('auth-token'); 
+        const token_id = jwt.verify(token,"sign").staffID;
+        let member = await AcademicMembers.findOne({member_id:token_id});
+        let mem_courses = member.courses;
+        let output = [];
+        for(c of mem_courses)
+        {
+            let sl = await slots.find({_id:s,course:c,instructor:null});
+            output.push.apply(output, sl);
+        }
+        res.send(output);
+    } catch (error) {
+        res.status(500).json({error:error.message})
+    }
+});
 
 router.route('/viewSchedule').get(auth,async(req,res)=>{
     try {
@@ -128,7 +146,7 @@ router.route('/SendSlotLinkingRequest').post(auth,async(req,res)=>{// req.body {
             rid:req.body.rid,
             sender:member._id,
             receiver:[],
-            senderComment:member._id,
+            senderComment:req.body.senderComment,
             state:'Pending',
             type:'Slot-linking',
             slot: theslot._id
