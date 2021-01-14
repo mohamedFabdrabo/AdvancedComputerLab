@@ -570,13 +570,8 @@ router.route('/registerMem').post(auth,async(req,res)=>{
          else
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
-<<<<<<< HEAD
-                return res.status(400).json({msg:"You cannot do that you are not HR"});
- 
-=======
         return res.status(400).json({msg:"You cannot do that you are not HR"});
         
->>>>>>> parent of 2c47eda... fathy-hashing-done
        let{gender,name,email,salary,officeLocation,role,dayoff,department,ar}=req.body; 
       const loc=await  locations.findOne(officeLocation);
       
