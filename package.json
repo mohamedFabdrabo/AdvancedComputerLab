@@ -21,8 +21,11 @@
     "@hapi/joi": "^17.1.1",
     "bcryptjs": "^2.4.3",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
+=======
+>>>>>>> parent of 2c47eda... fathy-hashing-done
 =======
 >>>>>>> parent of 2c47eda... fathy-hashing-done
     "express": "^4.17.1",

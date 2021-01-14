@@ -50,7 +50,10 @@ newC.save();
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> parent of 2c47eda... fathy-hashing-done
 app.listen(3000);
 
 >>>>>>> parent of 2c47eda... fathy-hashing-done
