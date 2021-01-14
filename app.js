@@ -49,6 +49,11 @@ newC.save();
 }*/
 
 
+<<<<<<< HEAD
+=======
+app.listen(3000);
+
+>>>>>>> parent of 2c47eda... fathy-hashing-done
 module.exports=app;
 
 
