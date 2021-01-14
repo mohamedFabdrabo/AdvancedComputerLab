@@ -572,8 +572,6 @@ router.route('/registerMem').post(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-         const salt=await bcrypt.genSalt();
-          const passwordHashed=await bcrypt.hash("123456",salt);   
        let{gender,name,email,salary,officeLocation,role,dayoff,department,ar}=req.body; 
       const loc=await  locations.findOne(officeLocation);
       
