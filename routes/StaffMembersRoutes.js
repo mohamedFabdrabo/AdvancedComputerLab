@@ -51,7 +51,7 @@ router.route('/login').post(async(req,res)=>{
             return res.status(400).json({msg:"register first"});
             }
         }
-        const matched=await bcrypt.compare(password,alreadyExist.password);
+        const matched=await bcrypt.compare(password,alreadyExist.password)
         if(!matched){
             return res.status(400).json({msg:"wrong password"});
         }
@@ -185,6 +185,7 @@ router.route('/updateProfile').put(auth,async(req,res)=>{ // done
             res.send("update failed");
             //res.send();  
     } catch (error) {
+        
         res.status(500).json({error:error.message})
     }
 
@@ -207,16 +208,14 @@ router.route('/resetPassword').put(auth,async(req,res)=>{ // done
         if(newPassword.localeCompare(passwordCheck)!= 0){
             return res.status(400).json({msg:"not same password"});
         }
-        const salt=await bcrypt.genSalt();
-        const passwordHashed=await bcrypt.hash(newPassword,salt);
        
         if(token_id.substring(0,2).localeCompare("hr") == 0)
            result=await HRmembers.findOneAndUpdate({member_id:token_id},{password: newPassword},{new: true});    
         
         if(token_id.substring(0,2).localeCompare("ac") == 0)
-        result=await AcademicMembers.findOneAndUpdate({member_id:token_id},{password: passwordHashed},{new: true});  
-        res.send("Password Updated Successfully");
+            result=await AcademicMembers.findOneAndUpdate({member_id:token_id},{password: newPassword},{new: true});     
         
+        res.send("Password Updated Successfully");
         //res.send();  
     } catch (error) {
         res.status(500).json({error:error.message})

@@ -558,7 +558,8 @@ router.route('/registerMem').post(auth,async(req,res)=>{
     if(error){
         return res.status(400).json(error.details[0].message);
     }
-   try{     
+   try{ 
+       const ans=0;
      const salt=await bcrypt.genSalt();
           const passwordHashed=await bcrypt.hash("123456",salt);   
     const token = req.header('auth-token'); 
@@ -572,12 +573,15 @@ router.route('/registerMem').post(auth,async(req,res)=>{
          return res.status(400).json({msg:"You cannot do that you are not HR"});
             if(output=="nothing")
         return res.status(400).json({msg:"You cannot do that you are not HR"});
-       let{gender,name,email,salary,officeLocation,role,dayoff,department,ar}=req.body; 
+  
+        let{gender,name,email,salary,officeLocation,role,dayoff,department,ar}=req.body; 
       const loc=await  locations.findOne(officeLocation);
       
       if(!loc){
         return res.status(400).json({msg:"location doesn't exist"});
-    }
+    }  
+     console.log("so bad")    
+ 
   
       // console.log(loc);
       if(loc.occupation==loc.capacity){
@@ -592,6 +596,7 @@ router.route('/registerMem').post(auth,async(req,res)=>{
         }
       
           console.log("HI");
+          
 
     const crs = await new HRModel({"gender":gender,"name":name,"email":email,
     "salary":salary,"password":passwordHashed,"officeLocation":loc._id,"role":role,
@@ -611,6 +616,8 @@ router.route('/registerMem').post(auth,async(req,res)=>{
       }
 else{
 
+    console.log("so bad")    
+  
       console.log(department);
       const filter = {"name":department};
          
@@ -620,7 +627,7 @@ else{
     }
   
       const crs = await new AcademicMembers({"gender":gender,"name":name,"email":email,
-    "salary":salary,"password":123456,"officeLocation":loc._id,"role":role,
+    "salary":salary,"password":passwordHashed,"officeLocation":loc._id,"role":role,
     "dayoff":dayoff,"department":department,"attendanceRecord":ar
     })
 
