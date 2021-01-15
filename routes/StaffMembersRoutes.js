@@ -197,8 +197,6 @@ router.route('/resetPassword').put(auth,async(req,res)=>{ // done
         const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
         //let fullProfile;
-        const salt=await bcrypt.genSalt();
-        const passwordHashed=await bcrypt.hash(newPassword,salt);
         let {newPassword,passwordCheck}=req.body;
         let result;
         if(!newPassword){
@@ -210,12 +208,13 @@ router.route('/resetPassword').put(auth,async(req,res)=>{ // done
         if(newPassword.localeCompare(passwordCheck)!= 0){
             return res.status(400).json({msg:"not same password"});
         }
-       
+        const salt=await bcrypt.genSalt();
+        const passwordHashed=await bcrypt.hash(newPassword,salt);   
         if(token_id.substring(0,2).localeCompare("hr") == 0)
-           result=await HRmembers.findOneAndUpdate({member_id:token_id},{passwordHashed: passwordHashed},{new: true});    
+            result=await HRmembers.findOneAndUpdate({member_id:token_id},{password: passwordHashed},{new: true});    
         
         if(token_id.substring(0,2).localeCompare("ac") == 0)
-            result=await AcademicMembers.findOneAndUpdate({member_id:token_id},{passwordHashed: passwordHashed},{new: true});     
+            result=await AcademicMembers.findOneAndUpdate({member_id:token_id},{password: passwordHashed},{new: true});     
         
         res.send("Password Updated Successfully");
         //res.send();  
@@ -335,7 +334,7 @@ router.route('/ViewMissingDays/:month').get(async(req,res)=>{
                 missingDays++;
 
         }
-        res.send(`The number of missing Days are : ${missingDays}`);
+        res.send({missingDays});
     
     } catch (error) {
         res.status(500).json({error:error.message})
