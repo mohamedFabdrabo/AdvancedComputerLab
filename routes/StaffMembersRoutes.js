@@ -212,10 +212,10 @@ router.route('/resetPassword').put(auth,async(req,res)=>{ // done
         }
        
         if(token_id.substring(0,2).localeCompare("hr") == 0)
-           result=await HRmembers.findOneAndUpdate({member_id:token_id},{passwordHashed: newPassword},{new: true});    
+           result=await HRmembers.findOneAndUpdate({member_id:token_id},{passwordHashed: passwordHashed},{new: true});    
         
         if(token_id.substring(0,2).localeCompare("ac") == 0)
-            result=await AcademicMembers.findOneAndUpdate({member_id:token_id},{passwordHashed: newPassword},{new: true});     
+            result=await AcademicMembers.findOneAndUpdate({member_id:token_id},{passwordHashed: passwordHashed},{new: true});     
         
         res.send("Password Updated Successfully");
         //res.send();  
