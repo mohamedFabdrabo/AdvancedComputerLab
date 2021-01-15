@@ -37,6 +37,7 @@ const auth=(req,res,next)=>{
 
 router.route('/login').post(async(req,res)=>{
     try {
+        res.send("Hello")
         let academic = true;   
         let {email,password}=req.body;
         if(!email || !password){
