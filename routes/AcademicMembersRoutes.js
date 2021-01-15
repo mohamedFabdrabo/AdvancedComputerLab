@@ -36,7 +36,7 @@ const auth=(req,res,next)=>{
             console.log(verified.staffID.substring().substring(0,2));
             return res.status(401).json({msg:"This functionality is only allowed for academic members only"});
         }
-        // console.log(verified);
+        console.log(verified);
         req.user=verified.id;
         next();
     } catch (error) {
@@ -169,8 +169,9 @@ router.route('/ChangeDayoffRequest').post(auth,async(req,res)=>{
         const token_id = jwt.verify(token,"sign").staffID;
         const member = await AcademicMembers.findOne({member_id:token_id});
         const newDay = req.body.day;
-        //const Thereason = req.body.reason;
-        const HOD =await Departments.findOne({name:member.department}).HOD;
+        const dep =await Departments.findOne({name:member.department});
+        const HOD = dep.HOD;
+
         const newRequest =new requests({
             sender:member._id,
             receiver:[],//HOD._id,
@@ -246,21 +247,23 @@ router.route('/SubmitLeaveRequest').post(auth,async(req,res)=>{// req.body {type
 
 router.route('/DeleteRequest').delete(auth,async(req,res)=>{ // req.body.request_id
     try {
+        console.log("Now Deleting");
         const token = req.header('auth-token'); 
         const token_id = jwt.verify(token,"sign").staffID;
         const member = await AcademicMembers.findOne({member_id:token_id});
         let r;
         r = await requests.findOne({rid:req.body.request_id});
         const todaydate = new Date();
-        let deleted;//console.log(member);
-        //console.log(r.sender);
-        //console.log(member._id);
+        let deleted;
+        console.log("Now Deleting");
+        console.log(r.sender);
+        console.log(member._id);
         if(r.sender.localeCompare(member._id) != 0)
             return res.status(401).json({msg:"Sorry you can not delete this request"}); 
-
+        console.log("Now Deleting");
         if(r.state == 'Pending' || r.requested_day < todaydate)
              deleted =  await requests.findOneAndDelete({rid:req.body.request_id});
-        
+
         res.send("request deleted successfully !!");
     } catch (error) {
         res.status(500).json({error:error.message})

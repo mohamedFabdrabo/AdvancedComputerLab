@@ -158,6 +158,23 @@ router.route('/deleteSlot').delete(auth,async(req,res)=>{
         res.status(500).json({error:error.message})
     }
 });
+router.route('/AllCourseSlots').get(auth,async(req,res)=>{
+    try {
+        const token = req.header('auth-token'); 
+        const token_id = jwt.verify(token,"sign").staffID;
+        const member = await AcademicMembers.findOne({member_id:token_id});
+        const thisCourse = await courses.findOne({coordinator:member._id});
+        if(!thisCourse)
+            return res.status(401).json({msg:"Sorry you are not course coordinator"});
+
+        const output = await slots.find({
+            course:thisCourse._id 
+        });
+        res.send(output);
+    } catch (error) {
+        res.status(500).json({error:error.message})
+    }
+});
 router.route('/updateSlot').put(auth,async(req,res)=>{   
     try {
         const token = req.header('auth-token'); 
