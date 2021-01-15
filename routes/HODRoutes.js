@@ -286,7 +286,7 @@ router.route('/viewDaysoff/:id').get(auth, async (req, res) => {
     try {
         const token = req.header('auth-token');
         const token_id = jwt.verify(token, "sign").staffID;
-        const user = await AcademicMembers.findOne({ _id: token_id }).catch();
+        const user = await AcademicMembers.findOne({member_id: token_id }).catch();
         if (user.role != "HOD") {
             return res.json("access denied")
         }
@@ -296,7 +296,7 @@ router.route('/viewDaysoff/:id').get(auth, async (req, res) => {
         var days = new Array();
         let found = false;
         staff.forEach(async (member, index, arr) => {
-            const x = await AcademicMembers.findOne({ _id: member })
+            const x = await AcademicMembers.findOne({member_id: member })
             const dayoff = x.dayoff;
             const name = x.name;
             if (req.params.name == "all") {
@@ -337,13 +337,13 @@ router.route('/viewRequests').get(auth, async (req, res) => {
 
         const token = req.header('auth-token');
         const token_id = jwt.verify(token, "sign").staffID;
-        const user = await AcademicMembers.findOne({ _id: token_id }).catch(e => { console.error(e) });
+        const user = await AcademicMembers.findOne({ member_id: token_id }).catch(e => { console.error(e) });
         if (user.role != "HOD") {
             res.json("access denied")
         }
         const reqs = await requests.find({
             type: { $in: ["Compensation", "Annual", "dayOffChange", "Sick", "Maternity", "Accidental"] },
-            state: { $in: ["Pending", "Accepted", "Rejected", "Cancelled"] }, receiver: { _id: token_id }
+            state: { $in: ["Pending", "Accepted", "Rejected", "Cancelled"] }, receiver: {member_id: token_id }
         })
         res.send(reqs);
 
@@ -360,7 +360,7 @@ router.route('/acceptRequest/:rid').put(auth, async (req, res) => {
     try {
         const token = req.header('auth-token');
         const token_id = jwt.verify(token, "sign").staffID;
-        const user = await AcademicMembers.findOne({ _id: token_id }).catch(e => { console.error(e) });
+        const user = await AcademicMembers.findOne({ member_id: token_id }).catch(e => { console.error(e) });
         if (user.role != "HOD") {
             res.json("access denied")
         }
@@ -372,7 +372,7 @@ router.route('/acceptRequest/:rid').put(auth, async (req, res) => {
         else {
             request.state = "Accepted";
             await request.save();
-            const sending = await AcademicMembers.findOne({ _id: request.sender })
+            const sending = await AcademicMembers.findOne({ member_id: request.sender })
             var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
             var d = days.indexOf(sending.dayoff);
             switch (request.type) {
