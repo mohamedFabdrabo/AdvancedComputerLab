@@ -1,5 +1,6 @@
 const express=require('express');
 const mongoose=require('mongoose');
+const path=require('path');
 
 const AllStaffRoutes = require('./routes/StaffMembersRoutes');
 const HrRoutes = require('./routes/HrRoutes');
@@ -50,6 +51,16 @@ newC.save();
 
 
 //app.listen(3000);
+
+// Serve static assets if in production
+if (process.env.NODE_ENV === 'production') {
+    // Set static folder
+    app.use(express.static('build'));
+  
+    app.get('*', (req, res) => {
+      res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
+    });
+  }
 
 module.exports=app;
 
