@@ -337,13 +337,16 @@ router.route('/viewRequests').get(auth, async (req, res) => {
 
         const token = req.header('auth-token');
         const token_id = jwt.verify(token, "sign").staffID;
-        const user = await AcademicMembers.findOne({ member_id: token_id }).catch(e => { console.error(e) });
+        const user = await AcademicMembers.findOne({ member_id: token_id });
         if (user.role != "HOD") {
             res.json("access denied")
         }
+        //console.log(user);
+        console.log(user);
         const reqs = await requests.find({
-            type: { $in: ["Compensation", "Annual", "dayOffChange", "Sick", "Maternity", "Accidental"] },
-            state: { $in: ["Pending", "Accepted", "Rejected", "Cancelled"] }, receiver: {member_id: token_id }
+            //type: { $in: ["Compensation", "Annual", "dayOffChange", "Sick", "Maternity", "Accidental"] },
+            //state: { $in: ["Pending", "Accepted", "Rejected", "Cancelled"] }, 
+            receiver:{_id:user._id}
         })
         res.send(reqs);
 
@@ -370,9 +373,8 @@ router.route('/acceptRequest/:rid').put(auth, async (req, res) => {
         if (request.state != "Pending")
             return res.json("you can't accept this request")
         else {
-            request.state = "Accepted";
-            await request.save();
-            const sending = await AcademicMembers.findOne({ member_id: request.sender })
+            await requests.findOneAndUpdate({ rid: req.params.rid },{state:'Accepted'});
+            const sending = await AcademicMembers.findOne({ _id: request.sender })
             var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
             var d = days.indexOf(sending.dayoff);
             switch (request.type) {
