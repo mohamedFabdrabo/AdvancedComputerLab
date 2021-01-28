@@ -32,6 +32,7 @@ app.use('/',cors(corsOptions),HrRoutes);
 app.use('/',cors(corsOptions),HODRoutes);
 app.use('/Academics',cors(corsOptions),AllAcademicsRoutes);
 app.use('/coordinator',cors(corsOptions),CourseCoordinatorRoutes);
+res.setHeader('Access-Control-Allow-Origin', '*');
 
 /*try{
 var newC = new counter({name:"rid"});
