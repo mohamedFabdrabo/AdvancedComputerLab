@@ -12,6 +12,7 @@ var cors = require("cors");
 const corsOptions={
 origin :
 [
+"https://advancedcomputerlab-frontend.herokuapp.com",
 "http://localhost:5000",
 "http://localhost:3000",
 "http://127.0.0.1",
@@ -23,13 +24,6 @@ exposedHeaders:["set-cookie"],
 credentials:true
 const app=express();
 
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", '*');
-    res.header("Access-Control-Allow-Credentials", true);
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.header("Access-Control-Allow-Headers", 'Origin,X-Requested-With,Content-Type,Accept,content-type,application/json');
-    next();
-  });
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
