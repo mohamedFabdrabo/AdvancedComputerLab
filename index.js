@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 5000;
 // process.env.DB_URL = "mongodb+srv://mfathy19:mfathy19@cluster0.mfjyt.mongodb.net/milestone1?retryWrites=true&w=majority"
 // process.env.BB_URL_TEST = "mongodb+srv://mfathy19:mfathy19@cluster0.mfjyt.mongodb.net/fathytest?retryWrites=true&w=majority"
 
-const url=process.env.BB_URL_TEST;
+const url=process.env.BB_URL_TEST || "mongodb+srv://mfathy19:mfathy19@cluster0.mfjyt.mongodb.net/fathytest?retryWrites=true&w=majority" ;
 
 
 
