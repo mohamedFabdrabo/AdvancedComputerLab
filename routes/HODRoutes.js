@@ -12,6 +12,7 @@ const { Mongoose } = require('mongoose');
 const { string } = require('joi');
 const course = require('../models/course');
 const { duration } = require('moment');
+const e = require('express');
 module.exports = router;
 const auth = (req, res, next) => {
     try {
@@ -33,45 +34,44 @@ const auth = (req, res, next) => {
         res.status(500).json({ error: error.message })
     }
 }
+
 //HOD functionalities
 //functionality 1 add course instructor
 router.route('/addInstructor/:id/:course').put(auth, async (req, res) => {
-
     try {
         const token = req.header('auth-token');
         const token_id = jwt.verify(token, "sign").staffID;
-        const user = await AcademicMembers.findOne({ _id: token_id }).catch(e => { console.error(e) });
+        const user = await AcademicMembers.findOne({ member_id: token_id }).catch(e => { console.error(e) });
         if (user.role != "HOD") {
-            return res.json("access denied")
+            return res.json("access denied NOT HOD")
         }
         const mydepm = await Departments.findOne({ name: user.department });
         const mycourses = mydepm.courses;
+        //console.log(mydepm.courses);
         var myinstructor, mycourse;
-        mycourses.forEach(async (element, index, arr) => {
-            const course = await courses.findOne({ _id: element })
+        
+        for(element in mydepm.courses)
+        {
+            //console.log(mycourses);
+            //console.log(mydepm.courses[element]);
+            let arr = mycourses;
+            const course = await courses.findOne({ _id: mydepm.courses[element] })
+            console.log(course);
             if (req.params.course == course.name) {
                 mycourse = course;
             }
-            if (index == arr.length - 1)
-
-                if (!mycourse)
-                    return res.json("no course with this name in your department");
-
-                else proceed();
-        });
-
-        function proceed() {
-            const mymembers = mydepm.academicmem;
-            mymembers.forEach(async (element, index, arr) => {
-                const mymember = await AcademicMembers.findOne({ _id: element });
+            if(mycourse)
+                {
+                const mymembers = mydepm.academicmem;
+                for(element2 in mymembers)
+               {
+                arr = mymembers;
+                const mymember = await AcademicMembers.findOne({ _id: mymembers[element2] });
                 if (req.params.id == mymember.member_id) {
                     myinstructor = mymember;
                 }
-                if (index == arr.length - 1)
-
-                    if (!myinstructor)
-                        return res.json("no staff member with this id in your department");
-                    else
+                    if (myinstructor)
+                    {
                         if (!mycourse.instructors.includes(myinstructor._id)) {
                             mycourse.instructors.push(myinstructor);
                             mycourse.academicMembers.push(myinstructor);
@@ -83,9 +83,10 @@ router.route('/addInstructor/:id/:course').put(auth, async (req, res) => {
                         }
                         else
                             return res.json("already there")
-
-            });
-
+                    }
+                }
+                    break;
+                }
         }
     }
     catch (error) {
@@ -94,52 +95,44 @@ router.route('/addInstructor/:id/:course').put(auth, async (req, res) => {
 });
 
 router.route('/deleteInstructor/:id/:course').put(auth, async (req, res) => {
-
     try {
         const token = req.header('auth-token');
         const token_id = jwt.verify(token, "sign").staffID;
-        const user = await AcademicMembers.findOne({ _id: token_id }).catch(e => { console.error(e) });
+        const user = await AcademicMembers.findOne({ member_id: token_id }).catch(e => { console.error(e) });
         if (user.role != "HOD") {
-            return res.json("access denied")
+            return res.json("access denied not a head of department")
         }
         const mydepm = await Departments.findOne({ name: user.department });
         const mycourses = mydepm.courses;
         var myinstructor, mycourse;
-        mycourses.forEach(async (element, index, arr) => {
-            const course = await courses.findOne({ _id: element })
+        for(element in mycourses)
+        {
+            const course = await courses.findOne({ _id: mycourses[element] })
             if (req.params.course == course.name) {
                 mycourse = course;
             }
-            if (index == arr.length - 1)
 
-                if (!mycourse)
-                    return res.json("no course with this name in your department");
-
-                else proceed();
-        });
-
-        function proceed() {
+            if (mycourse)
+            {           
             const mymembers = mycourse.instructors;
-            mymembers.forEach(async (element, index, arr) => {
-                const mymember = await AcademicMembers.findOne({ _id: element });
+            for(element2 in mymembers)
+            {
+                const mymember = await AcademicMembers.findOne({ _id: mymembers[element2] });
                 if (req.params.id == mymember.member_id) {
                     myinstructor = mymember;
                 }
-                if (index == arr.length - 1)
-                    if (!myinstructor)
-                        return res.json("no instructor with this id in this course");
-                    else {
+                    if (myinstructor)
+                    {
                         removeA(mycourse.instructors, myinstructor._id);
                         removeA(mycourse.academicMembers, myinstructor._id);
                         removeA(myinstructor.courses, mycourse._id);
-                        myinstructor.role = "";
+                        myinstructor.role = "Staff Member";
                         await myinstructor.save();
                         await mycourse.save();
                         return res.json("removed successfully")
                     }
-
-            });
-
+            }
+            }
         }
     }
     catch (error) {
@@ -151,86 +144,73 @@ router.route('/updateInstructor/:id1/:id2/:course').put(auth, async (req, res) =
     try {
         const token = req.header('auth-token');
         const token_id = jwt.verify(token, "sign").staffID;
-        const user = await AcademicMembers.findOne({ _id: token_id }).catch(e => { console.error(e) });
+        const user = await AcademicMembers.findOne({ member_id: token_id }).catch(e => { console.error(e) });
         if (user.role != "HOD") {
             return res.json("access denied")
         }
         const mydepm = await Departments.findOne({ name: user.department });
         const mycourses = mydepm.courses;
         var myinstructor, mycourse, newinstructor;
-        mycourses.forEach(async (element, index, arr) => {
-            const course = await courses.findOne({ _id: element })
-            console.log(course)
+        for(element in mycourses)
+       {
+            const course = await courses.findOne({ _id: mycourses[element] })
+            //console.log(course)
             if (req.params.course == course.name) {
                 mycourse = course;
             }
-            if (index == arr.length - 1)
+                if (mycourse)
+                    {
+                    const mymembersx = mydepm.academicmem;
+                    for(element2 in mymembersx)
+                    {
+                        const mymember = await AcademicMembers.findOne({ _id: mymembersx[element2] });
+                        if (req.params.id2 == mymember.member_id) {
+                            newinstructor = mymember;
+                        }
+                            if (newinstructor)
+                                {
+                                    const mymembers = mycourse.instructors;
+                                    for(element2 in mymembers)
+                                    {
+                                        const mymember = await AcademicMembers.findOne({ _id: mymembers[element2] });
+                                        if (req.params.id1 == mymember.member_id) {
+                                            myinstructor = mymember;
+                                        }
+                                        if (myinstructor)
+                                               {
+                                                removeA(mycourse.instructors, myinstructor._id);
+                                                removeA(mycourse.academicMembers, myinstructor._id);
+                                                mycourse.instructors.push(newinstructor);
+                                                mycourse.academicMembers.push(newinstructor);
+                                                newinstructor.role = "Instructor";
+                                                newinstructor.courses.push(mycourse);
+                                                removeA(myinstructor.courses, mycourse._id);
+                                                await newinstructor.save();
+                                                myinstructor.role = "Staff Member";
+                                                await myinstructor.save();
+                                                await mycourse.save();
+                                                return res.json("updated successfully")
+                                            }
+                        
+                                    }
+                         
+                                }
 
-                if (!mycourse)
-                    return res.json("no course with this name in your department");
-
-                else proceed();
-        });
-
-        function proceed() {
-            const mymembersx = mydepm.academicmem;
-            mymembersx.forEach(async (element, index, arr) => {
-                const mymember = await AcademicMembers.findOne({ _id: element });
-                if (req.params.id2 == mymember.member_id) {
-
-                    newinstructor = mymember;
-                }
-                if (index == arr.length - 1)
-
-                    if (!newinstructor)
-                        return res.json("no staff member with this id in your department");
-                    else
-                        proceed2();
-
-            });
-        }
-        function proceed2() {
-            const mymembers = mycourse.instructors;
-            mymembers.forEach(async (element, index, arr) => {
-                const mymember = await AcademicMembers.findOne({ _id: element });
-                if (req.params.id1 == mymember.member_id) {
-                    myinstructor = mymember;
-                }
-                if (index == arr.length - 1)
-                    if (!myinstructor)
-                        return res.json("no instructor in this course matches the name you entered");
-                    else {
-                        removeA(mycourse.instructors, myinstructor._id);
-                        removeA(mycourse.academicMembers, myinstructor._id);
-                        mycourse.instructors.push(newinstructor);
-                        mycourse.academicMembers.push(newinstructor);
-                        newinstructor.role = "Instructor";
-                        newinstructor.courses.push(mycourse);
-                        removeA(myinstructor.courses, mycourse._id);
-                        await newinstructor.save();
-                        myinstructor.role = "";
-                        await myinstructor.save();
-                        await mycourse.save();
-                        return res.json("updated successfully")
                     }
-
-            });
-
-
+                    }
         }
+
     }
     catch (error) {
         return res.status(500).json({ error: error.message })
     }
 });
-
 //functionality 2 view staff in his department or per course 
 router.route('/viewStaff/:name').get(auth, async (req, res) => {
-
     try {
         const token = req.header('auth-token');
         const token_id = jwt.verify(token, "sign").staffID;
-        const user = await AcademicMembers.findOne({ _id: token_id }).catch(e => { console.error(e) });
+        const user = await AcademicMembers.findOne({ member_id: token_id }).catch(e => { console.error(e) });
         if (user.role != "HOD" && user.role != "Instructor") {
             return res.json("access denied")
         }
@@ -239,36 +219,28 @@ router.route('/viewStaff/:name').get(auth, async (req, res) => {
         let staff = mydepm.academicmem;
         let found = false
         if (req.params.name != "all") {
-            await mydepm.courses.forEach(async (element, index, arr) => {
+            for(element of mydepm.courses){
                 const mycourse = await courses.findOne({ _id: element });
                 if (req.params.name == mycourse.name) {
                     staff = mycourse.academicMembers;
                     found = true;
                 }
-                if (index == arr.length - 1)
-                    proceed();
-            });
+            }
         }
-        else
-            proceed()
-        function proceed() {
-            var view = [];
-            staff.forEach(async (member, index, arr) => {
+        var view = [];
+            for(member of staff){
                 const x = await AcademicMembers.findOne({ _id: member });
-                view.push(x);
-                if (index == arr.length - 1) {
-                    if (req.params.name != "all") {
-                        if (!found)
-                            return res.json("no course with this name in your department");
-                        else
-                            return res.json(view);
-
-                    }
-                    else
-                        return res.json(view);
-                }
-            });
-        }
+                view.push(x);   
+            }
+            
+            if (req.params.name != "all") {
+                if (!found)
+                    return res.json("no course with this name in your department");
+                else
+                    return res.json(view);
+            }
+            else
+                return res.json(view);
 
     }
 
