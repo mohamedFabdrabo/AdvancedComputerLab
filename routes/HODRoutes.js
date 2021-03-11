@@ -292,9 +292,11 @@ router.route('/viewDaysoff/:id').get(auth, async (req, res) => {
         }
         const depname = user.department;
         const mydepm = await Departments.findOne({ name: depname });
+   
         let staff = mydepm.academicmem;
         var days = new Array();
         let found = false;
+        console.log(staff)
         staff.forEach(async (member, index, arr) => {
             const x = await AcademicMembers.findOne({member_id: member })
             const dayoff = x.dayoff;
@@ -336,11 +338,11 @@ router.route('/viewRequests').get(auth, async (req, res) => {
     try {
 
         const token = req.header('auth-token');
-        const token_id = jwt.verify(token, "sign").staffID;
+        let token_id = jwt.verify(token, "sign").staffID;
         const user = await AcademicMembers.findOne({ member_id: token_id });
-        if (user.role != "HOD") {
+      /*  if (user.role != "HOD") {
             res.json("access denied")
-        }
+        }*/
         //console.log(user);
         console.log(user);
         const reqs = await requests.find({
@@ -362,7 +364,7 @@ router.route('/acceptRequest/:rid').put(auth, async (req, res) => {
 
     try {
         const token = req.header('auth-token');
-        const token_id = jwt.verify(token, "sign").staffID;
+        let token_id = jwt.verify(token, "sign").staffID;
         const user = await AcademicMembers.findOne({ member_id: token_id }).catch(e => { console.error(e) });
         if (user.role != "HOD") {
             res.json("access denied")
@@ -375,6 +377,7 @@ router.route('/acceptRequest/:rid').put(auth, async (req, res) => {
         else {
             await requests.findOneAndUpdate({ rid: req.params.rid },{state:'Accepted'});
             const sending = await AcademicMembers.findOne({ _id: request.sender })
+            console.log(sending);
             var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
             var d = days.indexOf(sending.dayoff);
             switch (request.type) {
@@ -435,7 +438,7 @@ router.route('/acceptRequest/:rid').put(auth, async (req, res) => {
                     break; default:
                 // code block
             }
-            await sending.save();
+           await sending.save();
             return res.json("accepted successfully")
 
         }
@@ -451,14 +454,21 @@ router.route('/rejectRequest/:rid').put(auth, async (req, res) => {
 
     try {
         const token = req.header('auth-token');
-        const token_id = jwt.verify(token, "sign").staffID;
-        const user = await AcademicMembers.findOne({ _id: token_id }).catch(e => { console.error(e) });
+        let token_id = jwt.verify(token, "sign").staffID;
+        const user  = await AcademicMembers.findOne({member_id:token_id});
+        console.log(user)
+ 
+        user.role="HOD";
         if (user.role != "HOD") {
             return res.json("access denied")
         }
+        console.log("piece of shit")
+    console.log(req.params.rid)
         const request = await requests.findOne({ rid: req.params.rid });
+        console.log(request)
+  
         if (request.state != "Pending")
-            res.json("you can't reject this request")
+           return res.json("you can't reject this request")
         else {
             request.state = 'rejected';
             request.recieverComment = req.body.reason;
@@ -477,8 +487,9 @@ router.route('/courseCoverage/:name').get(auth, async (req, res) => {
     try {
 
         const token = req.header('auth-token');
-        const token_id = jwt.verify(token, "sign").staffID;
-        const user = await AcademicMembers.findOne({ _id: token_id });
+        let token_id = jwt.verify(token, "sign").staffID;
+        
+        const user = await AcademicMembers.findOne({ member_id: token_id });
         if (user.role != "HOD" && user.role != "Instructor") {
             return res.json("access denied")
         }
@@ -492,15 +503,17 @@ router.route('/courseCoverage/:name').get(auth, async (req, res) => {
                 mycourse = course;
                 found = true;
                 result = course.courseCoverage;
-
-
+            
                 if (found & !mycourse.instructors.includes(user._id) && user.role == "Instructor")
                     return res.json("your are not an instructor of this course")
             }
+            console.log(course)
+      
                 if (index == arr.length - 1 && !found)
                     return res.json("please enter a valid course name");
                     else        return res.json(req.params.name + " : " + result);
 
+                    
         });
 
     }
@@ -515,7 +528,7 @@ router.route('/viewAssignments/:name').get(auth, async (req, res) => {
     try {
         const token = req.header('auth-token');
         const token_id = jwt.verify(token, "sign").staffID;
-        const user = await AcademicMembers.findOne({ _id: token_id });
+        const user = await AcademicMembers.findOne({member_id: token_id });
         if (user.role != "HOD" && user.role != "Instructor") {
             res.json("access denied")
         }
