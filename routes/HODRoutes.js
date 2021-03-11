@@ -280,7 +280,10 @@ router.route('/viewStaff/:name').get(auth, async (req, res) => {
 })
 
 
+
 //functionality 3 View the day off of all the staff/ a single staff in his/her department
+// id=all will view all the day offs 
+// id=number will view for this member
 router.route('/viewDaysoff/:id').get(auth, async (req, res) => {
 
     try {
@@ -297,11 +300,17 @@ router.route('/viewDaysoff/:id').get(auth, async (req, res) => {
         var days = new Array();
         let found = false;
         console.log(staff)
-        staff.forEach(async (member, index, arr) => {
-            const x = await AcademicMembers.findOne({member_id: member })
+        console.log("hi")
+       
+        for(const element of staff ){
+       
+            const x = await AcademicMembers.findOne({_id: element })
             const dayoff = x.dayoff;
             const name = x.name;
-            if (req.params.name == "all") {
+            console.log(req.params.id)
+
+            console.log(x.member_id)
+            if (req.params.id == "all") {
                 days.push({ name, dayoff });
             }
             else {
@@ -310,18 +319,12 @@ router.route('/viewDaysoff/:id').get(auth, async (req, res) => {
                     days.push({ name, dayoff });
                 }
             }
-            if (index == arr.length - 1) {
-                if (req.params.name != "all") {
-                    if (!found)
-                        return res.send("no staff member with this name in your department");
-                    else
-                        return res.send(days[0]);
-                }
-                else
-                    return res.send(days);
-            }
+            
 
-        });
+        }
+        console.log(days)
+        return res.send(days);
+
 
 
     }
